@@ -7,13 +7,14 @@ import datetime
 from sqlalchemy import create_engine, text, Column, String, Text, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+from collections import defaultdict
 
 class WebsiteSpider(CrawlSpider):
     name = "website_spider"
 
     # Read the list of websites from website_list.txt
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    website_list_path = os.path.join(project_root, 'mini_search_engine/website_list_test.txt')
+    website_list_path = os.path.join(project_root, 'mini_search_engine/website_list_full.txt')
 
     with open(website_list_path) as f:
         start_urls = [
@@ -36,10 +37,6 @@ class WebsiteSpider(CrawlSpider):
     rules = (
         Rule(LinkExtractor(allow=allowed_paths, allow_domains=allowed_domains), callback='parse_item', follow=True),
     )
-
-    custom_settings = {
-        'CLOSESPIDER_PAGECOUNT': 10000,
-    }
 
     def __init__(self, *args, **kwargs):
         super(WebsiteSpider, self).__init__(*args, **kwargs)
@@ -66,7 +63,43 @@ class WebsiteSpider(CrawlSpider):
         metadata.create_all(self.engine)
 
         with self.engine.connect() as conn:
+            self.db_test(conn)
+            self.recreate_table(conn)
+
+        # Initialize page count per domain
+        self.page_count_per_domain = defaultdict(int)
+        self.max_pages_per_domain = 10000  # Set your desired limit per domain
+
+    def db_test(self, conn):
+        try:
+            res = conn.execute(text("SELECT now()")).fetchall()
+            self.output_file.write(f"{str(res)}\n")
+        except Exception as e:
+            self.output_file.write(f"Error executing query: {e}\n")
+
+    def recreate_table(self, conn):
+        try:
+            metadata = MetaData()
+            self.crawled_data = Table('crawled_data', metadata,
+                Column('url', String, primary_key=True),
+                Column('title', String),
+                Column('content', Text),
+            )
+            metadata.create_all(self.engine)
             conn.execute(text("DELETE FROM crawled_data"))
+        except Exception as e:
+            self.output_file.write(f"Error creating table or clearing data: {e}\n")
+
+    def insert_crawled_data(self, conn, url, title, content):
+        try:
+            conn.execute(
+                text("INSERT INTO crawled_data (url, title, content) VALUES (:url, :title, :content)"),
+                {"url": url, "title": title, "content": content}
+            )
+            conn.commit()
+            self.output_file.write(f"Successfully inserted data for URL: {url}\n")
+        except Exception as e:
+            self.output_file.write(f"Error inserting data for URL: {url} - {e}\n")
 
     def parse_item(self, response):
         self.output_file.write(f'Crawling page: {response.url}\n')
@@ -77,33 +110,15 @@ class WebsiteSpider(CrawlSpider):
 
         # Insert data into the database
         with self.engine.connect() as conn:
-            try:
-                res = conn.execute(text("SELECT now()")).fetchall()
-                self.output_file.write(f"{str(res)}\n")
-            except Exception as e:
-                self.output_file.write(f"Error executing query: {e}\n")
-            try:
-                metadata = MetaData()
-                self.crawled_data = Table('crawled_data', metadata,
-                    Column('url', String, primary_key=True),
-                    Column('title', String),
-                    Column('content', Text),
-                )
-                metadata.create_all(self.engine)
+            self.insert_crawled_data(conn, url, title, content)
 
-                conn.execute(text("DELETE FROM crawled_data"))
-            except Exception as e:
-                self.output_file.write(f"Error creating table or clearing data: {e}\n")
+        # Increment page count for the domain
+        domain = response.url.split('//')[-1].split('/')[0]
+        self.page_count_per_domain[domain] += 1
 
-            try:
-                conn.execute(
-                    text("INSERT INTO crawled_data (url, title, content) VALUES (:url, :title, :content)"),
-                    {"url": url, "title": title, "content": content}
-                )
-                conn.commit()
-                self.output_file.write(f"Successfully inserted data for URL: {url}\n")
-            except Exception as e:
-                self.output_file.write(f"Error inserting data for URL: {url} - {e}\n")
+        # Check if the page count limit for the domain has been reached
+        if self.page_count_per_domain[domain] >= self.max_pages_per_domain:
+            self.crawler.engine.close_spider(self, f"Reached page count limit for domain: {domain}")
 
         yield {
             'url': url,
