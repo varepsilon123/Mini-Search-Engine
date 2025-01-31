@@ -7,7 +7,7 @@ from sqlalchemy import create_engine, text, Column, String, Text, MetaData, Tabl
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from collections import defaultdict
-from scrapy.utils.log import configure_logging
+import logging
 
 def db_test(conn, output_file):
     try:
@@ -62,7 +62,10 @@ if __name__ == "__main__":
         ]
 
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_file = f'log_{timestamp}.txt'
+    log_file_info = f'log_info_{timestamp}.txt'
+    log_file_warning = f'log_warning_{timestamp}.txt'
+    log_file_error = f'log_error_{timestamp}.txt'
+    log_file_critical = f'log_critical_{timestamp}.txt'
     output_file = open(f'output_{timestamp}.txt', 'w')
 
     settings = {
@@ -70,9 +73,32 @@ if __name__ == "__main__":
         'SCHEDULER_DISK_QUEUE': 'scrapy.squeues.PickleFifoDiskQueue',
         'SCHEDULER_MEMORY_QUEUE': 'scrapy.squeues.FifoMemoryQueue',
         'DUPEFILTER_CLASS': 'scrapy.dupefilters.RFPDupeFilter',  # Use the default duplicate filter
-        'LOG_LEVEL': 'DEBUG',  # Set the log level to DEBUG to capture all logs
-        'LOG_FILE': log_file,  # Write logs to a file
+        'LOG_LEVEL': 'DEBUG',  # Set the global log level to DEBUG to capture all logs
+        'TELNETCONSOLE_ENABLED': False,  # Disable the Telnet console extension
+        'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',  # Update to the recommended value
     }
+
+    # Configure specific loggers
+    file_handler_info = logging.FileHandler(log_file_info, mode='w')
+    file_handler_info.setLevel(logging.INFO)
+    file_handler_warning = logging.FileHandler(log_file_warning, mode='w')
+    file_handler_warning.setLevel(logging.WARNING)
+    file_handler_error = logging.FileHandler(log_file_error, mode='w')
+    file_handler_error.setLevel(logging.ERROR)
+    file_handler_critical = logging.FileHandler(log_file_critical, mode='w')
+    file_handler_critical.setLevel(logging.CRITICAL)
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s [%(name)s] %(levelname)s: %(message)s',
+        handlers=[
+            file_handler_info,
+            file_handler_warning,
+            file_handler_error,
+            file_handler_critical,
+            logging.StreamHandler()
+        ]
+    )
 
     process = CrawlerProcess(settings=settings)
 
@@ -105,9 +131,6 @@ if __name__ == "__main__":
             path = '/'.join(url.split('//')[-1].split('/')[1:])
             if path:
                 allowed_paths.append(re.escape(path))
-
-        # Log here in the output file for the url
-        output_file.write(f'In main, current URL: {url}\n')
 
         output_file.write(f'Queuing process: {allowed_domains[0]}\n')
         process.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, output_file=output_file, engine=engine, insert_crawled_data=insert_crawled_data)

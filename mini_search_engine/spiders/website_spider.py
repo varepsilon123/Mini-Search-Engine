@@ -17,10 +17,6 @@ class WebsiteSpider(CrawlSpider):
         self.insert_crawled_data = insert_crawled_data
         self.crawled_count = 0
 
-        # Log allowed path and domain
-        self.output_file.write(f"Allowed domain: {self.allowed_domains}\n")
-        self.output_file.write(f"Allowed path: {self.allowed_paths}\n")
-
         # Initialize page count per domain
         self.page_count_per_domain = defaultdict(int)
         self.max_pages_per_domain = 10000  # Set your desired limit per domain
@@ -37,7 +33,6 @@ class WebsiteSpider(CrawlSpider):
             yield scrapy.Request(url=url, callback=self.parse_item, dont_filter=True)
 
     def parse_item(self, response):
-        self.output_file.write(f'Crawl count: {self.crawled_count}, Crawling page: {response.url}\n')
         self.crawled_count += 1
         # Define the data to be extracted from each page
         url = response.url
