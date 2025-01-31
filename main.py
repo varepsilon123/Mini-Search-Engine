@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, text, Column, String, Text, MetaData, Tabl
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from collections import defaultdict
+from scrapy.utils.log import configure_logging
 
 def db_test(conn, output_file):
     try:
@@ -31,19 +32,19 @@ def recreate_table(engine, output_file):
 
 def insert_crawled_data(engine, output_file, url, title, content):
     try:
-        # insert data to db, skip for testing
-        # with engine.connect() as conn:
-        #     conn.execute(
-        #         text("""
-        #             INSERT INTO crawled_data (url, title, content)
-        #             VALUES (:url, :title, :content)
-        #             ON CONFLICT (url) DO UPDATE SET
-        #             title = EXCLUDED.title,
-        #             content = EXCLUDED.content
-        #         """),
-        #         {"url": url, "title": title, "content": content}
-        #     )
-        #     conn.commit()
+        # insert data to db
+        with engine.connect() as conn:
+            conn.execute(
+                text("""
+                    INSERT INTO crawled_data (url, title, content)
+                    VALUES (:url, :title, :content)
+                    ON CONFLICT (url) DO UPDATE SET
+                    title = EXCLUDED.title,
+                    content = EXCLUDED.content
+                """),
+                {"url": url, "title": title, "content": content}
+            )
+            conn.commit()
             output_file.write(f"Successfully inserted/updated data for URL: {url}\n")
     except Exception as e:
         output_file.write(f"Error inserting/updating data for URL: {url} - {e}\n")
@@ -51,7 +52,7 @@ def insert_crawled_data(engine, output_file, url, title, content):
 
 if __name__ == "__main__":
     project_root = os.path.dirname(os.path.dirname(__file__))
-    website_list_path = os.path.join(project_root, 'website_list_test.txt')
+    website_list_path = os.path.join(project_root, 'website_list_full.txt')
 
     with open(website_list_path) as f:
         urls = [
@@ -60,13 +61,23 @@ if __name__ == "__main__":
             for line in f.readlines()
         ]
 
-    process = CrawlerProcess()
-
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    log_file = f'log_{timestamp}.txt'
     output_file = open(f'output_{timestamp}.txt', 'w')
 
+    settings = {
+        'DEPTH_PRIORITY': 1,
+        'SCHEDULER_DISK_QUEUE': 'scrapy.squeues.PickleFifoDiskQueue',
+        'SCHEDULER_MEMORY_QUEUE': 'scrapy.squeues.FifoMemoryQueue',
+        'DUPEFILTER_CLASS': 'scrapy.dupefilters.RFPDupeFilter',  # Use the default duplicate filter
+        'LOG_LEVEL': 'DEBUG',  # Set the log level to DEBUG to capture all logs
+        'LOG_FILE': log_file,  # Write logs to a file
+    }
+
+    process = CrawlerProcess(settings=settings)
+
     # Log here in the output file for the url
-    output_file.write(f'In main, Crawling URLs: {urls}\n')
+    output_file.write(f'In main, Crawling {len(urls)} URLs.\n')
 
     load_dotenv(os.path.join(project_root, 'env/.env'))
     db_user = os.getenv('SQL_user')
@@ -98,6 +109,11 @@ if __name__ == "__main__":
         # Log here in the output file for the url
         output_file.write(f'In main, current URL: {url}\n')
 
+        output_file.write(f'Queuing process: {allowed_domains[0]}\n')
         process.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, output_file=output_file, engine=engine, insert_crawled_data=insert_crawled_data)
 
-    process.start()
+    output_file.write('Starting the crawling process...\n')
+    process.start()  # Start the crawling process for all URLs
+    output_file.write('Crawling process finished.\n')
+
+    output_file.close()

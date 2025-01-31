@@ -8,16 +8,18 @@ class WebsiteSpider(CrawlSpider):
     name = "website_spider"
 
     def __init__(self, start_urls=None, allowed_domains=None, allowed_paths=None, output_file=None, engine=None, insert_crawled_data=None, *args, **kwargs):
+        super(WebsiteSpider, self).__init__(*args, **kwargs)  # Initialize the parent class
         self.start_urls = start_urls
         self.allowed_domains = allowed_domains
         self.allowed_paths = allowed_paths
         self.output_file = output_file
         self.engine = engine
         self.insert_crawled_data = insert_crawled_data
+        self.crawled_count = 0
 
-        # Log allowed paths and domains
-        self.output_file.write(f"Allowed domains: {self.allowed_domains}\n")
-        self.output_file.write(f"Allowed paths: {self.allowed_paths}\n")
+        # Log allowed path and domain
+        self.output_file.write(f"Allowed domain: {self.allowed_domains}\n")
+        self.output_file.write(f"Allowed path: {self.allowed_paths}\n")
 
         # Initialize page count per domain
         self.page_count_per_domain = defaultdict(int)
@@ -29,8 +31,14 @@ class WebsiteSpider(CrawlSpider):
         ]
         self._compile_rules()  # Compile the rules
 
+    def start_requests(self):
+        for url in self.start_urls:
+            self.output_file.write(f'Starting request for URL: {url}\n')
+            yield scrapy.Request(url=url, callback=self.parse_item, dont_filter=True)
+
     def parse_item(self, response):
-        self.output_file.write(f'Crawling page: {response.url}\n')
+        self.output_file.write(f'Crawl count: {self.crawled_count}, Crawling page: {response.url}\n')
+        self.crawled_count += 1
         # Define the data to be extracted from each page
         url = response.url
         title = response.xpath('//title/text()').get()
@@ -53,7 +61,6 @@ class WebsiteSpider(CrawlSpider):
             # Continue crawling other pages
             self.output_file.write(f"Extracting links from: {response.url}\n")
             for link in LinkExtractor(allow=self.allowed_paths, allow_domains=self.allowed_domains).extract_links(response):
-                self.output_file.write(f"Found link: {link.url}\n")
                 yield scrapy.Request(link.url, callback=self.parse_item)
 
         yield {
@@ -63,4 +70,4 @@ class WebsiteSpider(CrawlSpider):
         }
 
     def closed(self, reason):
-        self.output_file.close()
+        self.output_file.write(f"Spider closed: {reason}, URL: {self.allowed_domains[0]},  Crawled: {self.crawled_count}\n")
