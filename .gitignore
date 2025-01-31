@@ -170,8 +170,9 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# Ignore output files
+# Ignore output and files
 output_*.txt
+log_*.txt
 
 # Ignore generated files
 .DS_Store
