@@ -8,7 +8,6 @@ class WebsiteSpider(CrawlSpider):
     name = "website_spider"
 
     def __init__(self, start_urls=None, allowed_domains=None, allowed_paths=None, output_file=None, engine=None, insert_crawled_data=None, *args, **kwargs):
-        super(WebsiteSpider, self).__init__(*args, **kwargs)  # Initialize the parent class
         self.start_urls = start_urls
         self.allowed_domains = allowed_domains
         self.allowed_paths = allowed_paths
