@@ -62,11 +62,14 @@ if __name__ == "__main__":
         ]
 
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_file_info = f'log_info_{timestamp}.txt'
-    log_file_warning = f'log_warning_{timestamp}.txt'
-    log_file_error = f'log_error_{timestamp}.txt'
-    log_file_critical = f'log_critical_{timestamp}.txt'
-    output_file = open(f'output_{timestamp}.txt', 'w')
+    output_folder = f'output_{timestamp}'
+    os.makedirs(output_folder, exist_ok=True)
+    
+    log_file_info = os.path.join(output_folder, f'log_info_{timestamp}.txt')
+    log_file_warning = os.path.join(output_folder, f'log_warning_{timestamp}.txt')
+    log_file_error = os.path.join(output_folder, f'log_error_{timestamp}.txt')
+    log_file_critical = os.path.join(output_folder, f'log_critical_{timestamp}.txt')
+    output_file = open(os.path.join(output_folder, f'output_{timestamp}.txt'), 'w')
 
     settings = {
         'DEPTH_PRIORITY': 1,
