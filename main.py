@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from collections import defaultdict
 import logging
+import sys
 
 def db_test(conn, output_file):
     try:
@@ -50,7 +51,7 @@ def insert_crawled_data(engine, output_file, url, title, content):
         output_file.write(f"Error inserting/updating data for URL: {url} - {e}\n")
         raise
 
-if __name__ == "__main__":
+def run_crawler():
     project_root = os.path.dirname(os.path.dirname(__file__))
     website_list_path = os.path.join(project_root, 'website_list_full.txt')
 
@@ -143,3 +144,13 @@ if __name__ == "__main__":
     output_file.write('Crawling process finished.\n')
 
     output_file.close()
+
+def run_index():
+    return
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "crawl":
+            run_crawler()
+        elif sys.argv[1] == "index":
+            run_index()
