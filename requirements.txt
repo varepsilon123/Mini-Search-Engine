@@ -33,6 +33,7 @@ Scrapy==2.11.2
 service-identity==24.2.0
 SQLAlchemy==2.0.37
 sqlalchemy-cockroachdb==2.0.2
+tantivy==0.22.0
 tldextract==5.1.2
 tomli==2.2.1
 Twisted==24.11.0
