@@ -10,10 +10,18 @@ pip install -r requirements.txt
 
 ## Running the Crawler
 
-To run the crawler, use the following command:
+To run the crawler, use the following command from the root folder:
 
 ```bash
-scrapy crawl website_spider
+python main.py crawl
+```
+
+## Running the Indexing
+
+To run the indexing, use the following command from the root folder:
+
+```bash
+python main.py index
 ```
 
 ## Database Connection
