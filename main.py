@@ -6,7 +6,6 @@ import datetime
 from sqlalchemy import create_engine, text, Column, String, Text, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from collections import defaultdict
 import logging
 import sys
 
