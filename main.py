@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import logging
 import sys
+from index import run_index
 
 def db_test(conn, output_file):
     try:
@@ -50,9 +51,9 @@ def insert_crawled_data(engine, output_file, url, title, content):
         output_file.write(f"Error inserting/updating data for URL: {url} - {e}\n")
         raise
 
-def run_crawler():
+def run_crawler(engine):
     project_root = os.path.dirname(os.path.dirname(__file__))
-    website_list_path = os.path.join(project_root, 'website_list_full.txt')
+    website_list_path = os.path.join(project_root, 'website_list_test.txt')
 
     with open(website_list_path) as f:
         urls = [
@@ -108,19 +109,10 @@ def run_crawler():
     # Log here in the output file for the url
     output_file.write(f'In main, Crawling {len(urls)} URLs.\n')
 
-    load_dotenv(os.path.join(project_root, 'env/.env'))
-    db_user = os.getenv('SQL_user')
-    db_password = os.getenv('SQL_password')
-    db_connection = os.getenv('SQL_connection')
-
-    # Create database engine
-    engine = create_engine(f'cockroachdb://{db_user}:{db_password}{db_connection}')
-    Session = sessionmaker(bind=engine)
-
     # Test connection and recreate table
     with engine.connect() as conn:
         db_test(conn, output_file)
-        recreate_table(engine, output_file)
+        # recreate_table(engine, output_file)
 
     for url in urls:
         start_urls = [url]
@@ -144,12 +136,18 @@ def run_crawler():
 
     output_file.close()
 
-def run_index():
-    return
-
 if __name__ == "__main__":
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    load_dotenv(os.path.join(project_root, 'env/.env'))
+    db_user = os.getenv('SQL_user')
+    db_password = os.getenv('SQL_password')
+    db_connection = os.getenv('SQL_connection')
+    
+    # Create database engine
+    engine = create_engine(f'cockroachdb://{db_user}:{db_password}{db_connection}')
+
     if len(sys.argv) > 1:
         if sys.argv[1] == "crawl":
-            run_crawler()
+            run_crawler(engine)
         elif sys.argv[1] == "index":
-            run_index()
+            run_index(engine)
