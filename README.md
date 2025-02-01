@@ -39,3 +39,7 @@ export DATABASE_URL="cockroachdb://<SQL-USER-NAME>:<ENTER-SQL-USER-PASSWORD>@pau
 ```
 
 Right now I am using a .env file
+
+## Why Choose Tantivy Over Vespa for Indexing
+
+*Placeholder section explaining the reasons for choosing Tantivy over Vespa for indexing.*
