@@ -28,9 +28,12 @@ class WebsiteSpider(CrawlSpider):
         ]
         self._compile_rules()  # Compile the rules
 
-        # Connect signals
-        self.crawler.signals.connect(self.spider_error, signal=signals.spider_error)
-        self.crawler.signals.connect(self.request_dropped, signal=signals.request_dropped)
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        spider = super(WebsiteSpider, cls).from_crawler(crawler, *args, **kwargs)
+        crawler.signals.connect(spider.spider_error, signal=signals.spider_error)
+        crawler.signals.connect(spider.request_dropped, signal=signals.request_dropped)
+        return spider
 
     def start_requests(self):
         for url in self.start_urls:
