@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
 import sys
-from index import run_index
+from index import Indexer
 from crawl import run_crawler
 
 if __name__ == "__main__":
@@ -19,4 +19,5 @@ if __name__ == "__main__":
         if sys.argv[1] == "crawl":
             run_crawler(engine)
         elif sys.argv[1] == "index":
-            run_index(engine)
+            indexer = Indexer()
+            indexer.run_index(engine)
