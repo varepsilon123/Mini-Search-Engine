@@ -35,7 +35,7 @@ def insert_crawled_data(engine, output_file, url, title, content):
 
 def run_crawler(engine):
     project_root = os.path.dirname(__file__)
-    website_list_path = os.path.join(project_root, 'website_list_test.txt')
+    website_list_path = os.path.join(project_root, 'website_list_full.txt')
 
     with open(website_list_path) as f:
         urls = [
@@ -48,7 +48,6 @@ def run_crawler(engine):
     output_folder = f'output_{timestamp}'
     os.makedirs(output_folder, exist_ok=True)
     
-    log_file_info = os.path.join(output_folder, f'log_info_{timestamp}.txt')
     log_file_warning = os.path.join(output_folder, f'log_warning_{timestamp}.txt')
     log_file_error = os.path.join(output_folder, f'log_error_{timestamp}.txt')
     log_file_critical = os.path.join(output_folder, f'log_critical_{timestamp}.txt')
@@ -64,9 +63,7 @@ def run_crawler(engine):
         'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',  # Update to the recommended value
     }
 
-    # Configure specific loggers
-    file_handler_info = logging.FileHandler(log_file_info, mode='w')
-    file_handler_info.setLevel(logging.INFO)
+    # Configure specific loggers for different log levels
     file_handler_warning = logging.FileHandler(log_file_warning, mode='w')
     file_handler_warning.setLevel(logging.WARNING)
     file_handler_error = logging.FileHandler(log_file_error, mode='w')
@@ -78,7 +75,6 @@ def run_crawler(engine):
         level=logging.DEBUG,
         format='%(asctime)s [%(name)s] %(levelname)s: %(message)s',
         handlers=[
-            file_handler_info,
             file_handler_warning,
             file_handler_error,
             file_handler_critical,
