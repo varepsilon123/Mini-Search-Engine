@@ -54,7 +54,7 @@ class Indexer:
         index_writer = index.writer()
 
         # Process data in batches
-        batch_size = 100
+        batch_size = 1000
         batch_num = 0
         with ThreadPoolExecutor() as executor:
             futures = []
