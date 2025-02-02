@@ -8,6 +8,28 @@ To install the required dependencies, run the following command:
 pip install .
 ```
 
+## Precompiling Tantivy Package
+
+To speed up the installation process, you can precompile the Tantivy package. First, ensure you have the `wheel` package installed:
+
+```bash
+pip install wheel
+```
+
+Then, precompile the packages (especially for Tantivy) and save the wheel file to a specified folder:
+
+```bash
+pip wheel . -w {folder path to put wheel}
+```
+
+## Installing from Precompiled Wheels
+
+If you have precompiled wheels, you can install the dependencies from the wheels directory:
+
+```bash
+pip install --find-links={folder path to put wheel} -r requirements.txt
+```
+
 ## Starting the Virtual Environment
 
 To start the virtual environment, run the following command:
