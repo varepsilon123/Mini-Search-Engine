@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 class Indexer:
     def __init__(self):
+        print("Indexer initialized")
         self.project_root = os.path.dirname(__file__)
         self.init_timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         self.output_folder = f'output_{self.init_timestamp}'
@@ -14,8 +15,9 @@ class Indexer:
         self.log_writer('Indexing process started')
 
     def log_writer(self, message):
-        self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-        self.output_file.write(f": {message}\n")
+        log_str = datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + f": {message}\n"
+        self.output_file.write(log_str)
+        print(log_str)
 
     def fetch_batch(self, engine, offset, limit):
         with engine.connect() as conn:
@@ -34,8 +36,6 @@ class Indexer:
             ))
 
     def run_index(self, engine):
-        # Load environment variables
-        project_root = os.path.dirname(os.path.dirname(__file__))
 
         # Define the schema
         schema_builder = tantivy.SchemaBuilder()
@@ -45,7 +45,7 @@ class Indexer:
         schema = schema_builder.build()
 
         # Create an index
-        index_path = os.path.join(project_root, 'tantivy_index')
+        index_path = os.path.join(self.project_root, 'tantivy_index')
         if not os.path.exists(index_path):
             os.makedirs(index_path)
         index = tantivy.Index(schema, path=index_path)
@@ -53,18 +53,19 @@ class Indexer:
         # Create an index writer
         index_writer = index.writer()
 
-        # Fetch total number of rows
-        with engine.connect() as conn:
-            total_rows = conn.execute(text("SELECT COUNT(*) FROM crawled_data")).scalar()
-            self.log_writer(f"Total rows to be indexed: {total_rows}")
-
         # Process data in batches
         batch_size = 100
+        batch_num = 0
         with ThreadPoolExecutor() as executor:
             futures = []
-            for offset in range(0, total_rows, batch_size):
-                batch = self.fetch_batch(engine, offset, batch_size)
+            offset = 0
+            batch = self.fetch_batch(engine, offset, batch_size)
+            while len(batch) == batch_size:
+                self.log_writer(f"Batch number: {batch_num}")
+                batch_num += 1
                 futures.append(executor.submit(self.process_batch, index_writer, batch))
+                offset += batch_size
+                batch = self.fetch_batch(engine, offset, batch_size)
 
             # Wait for all futures to complete
             for future in futures:
