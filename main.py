@@ -17,23 +17,9 @@ def db_test(conn, output_file):
     except Exception as e:
         output_file.write(f"Error executing query: {e}\n")
 
-def recreate_table(engine, output_file):
-    try:
-        metadata = MetaData()
-        crawled_data = Table('crawled_data', metadata,
-            Column('url', String, primary_key=True),
-            Column('title', String),
-            Column('content', Text),
-        )
-        metadata.create_all(engine)
-        with engine.connect() as conn:
-            conn.execute(text("DELETE FROM crawled_data"))
-    except Exception as e:
-        output_file.write(f"Error creating table or clearing data: {e}\n")
-
 def insert_crawled_data(engine, output_file, url, title, content):
     try:
-        # insert data to db
+        # upsert data to db
         with engine.connect() as conn:
             conn.execute(
                 text("""
@@ -109,10 +95,9 @@ def run_crawler(engine):
     # Log here in the output file for the url
     output_file.write(f'In main, Crawling {len(urls)} URLs.\n')
 
-    # Test connection and recreate table
+    # Test connection
     with engine.connect() as conn:
         db_test(conn, output_file)
-        # recreate_table(engine, output_file)
 
     for url in urls:
         start_urls = [url]
