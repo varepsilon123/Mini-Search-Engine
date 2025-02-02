@@ -175,5 +175,9 @@ output_*/
 output_*.txt
 log_*.txt
 
+# Ignore wheel
+wheel/
+*.whl
+
 # Ignore generated files
 .DS_Store
