@@ -8,6 +8,14 @@ To install the required dependencies, run the following command:
 pip install -r requirements.txt
 ```
 
+## Starting the Virtual Environment
+
+To start the virtual environment, run the following command:
+
+```bash
+source venv/bin/activate
+```
+
 ## Running the Crawler
 
 To run the crawler, use the following command from the root folder:
