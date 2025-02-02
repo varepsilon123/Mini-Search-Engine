@@ -179,5 +179,8 @@ log_*.txt
 wheel/
 *.whl
 
+# Ignore Tantivy index
+tantivy_index/
+
 # Ignore generated files
 .DS_Store
