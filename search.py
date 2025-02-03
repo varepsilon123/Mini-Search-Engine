@@ -1,5 +1,6 @@
 import tantivy
 import os
+import time
 
 class Searcher:
     def __init__(self):
@@ -10,36 +11,37 @@ class Searcher:
         self.searcher = self.index.searcher()
 
     def search(self, query_str, top_k=10):
-        print(f"Searching for: {query_str}")
+        start_time = time.time()
+        print(f"Searching for: {query_str} at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time))}")
         query = self.index.parse_query(query_str, ["title", "content", "url"])
-        # top_docs = self.searcher.search(query, top_k).hits
-        print(self.searcher.search(query, 3).hits)
-        # (best_score, best_doc_address) = self.searcher.search(query, 3).hits
-        best_doc_address_arr = self.searcher.search(query, 3).hits
-        print(f"best_doc_address: {best_doc_address_arr}")
-        best_doc = self.searcher.doc(best_doc_address_arr[0])
+        top_ten_docs = self.searcher.search(query, top_k).hits
         results = []
-        # if top_docs:
-        #     for score, doc_address in top_docs:
-        #         doc = self.searcher.doc(doc_address)
-        #         results.append({
-        #             "score": score,
-        #             "url": doc.get("url"),
-        #             "title": doc.get("title"),
-        #             "content": doc.get("content")
-        #         })
-        # else:
-        #     print("No results found.")
+        if top_ten_docs:
+            for score, doc_address in top_ten_docs:
+                doc = self.searcher.doc(doc_address)
+                results.append({
+                    "score": score,
+                    "url": doc.get_first("url"),
+                    "title": doc.get_first("title"),
+                    "content": doc.get_first("content")
+                })
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"Found {len(results)} results in {elapsed_time:.2f} seconds.")
+            # print(results)
+        else:
+            print("No results found.")
         return results
 
     def run_search(self):
         query_str = input("Enter your search query: ")
+        # query_str = 'node'
         results = self.search(query_str)
         for result in results:
             print(f"Score: {result['score']}")
             print(f"URL: {result['url']}")
             print(f"Title: {result['title']}")
-            print(f"Content: {result['content']}")
+            # print(f"Content: {result['content']}")
             print("="*20)
 
 # if __name__ == "__main__":
