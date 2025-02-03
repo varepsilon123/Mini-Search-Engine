@@ -8,15 +8,10 @@ class Indexer:
     def __init__(self):
         print("Indexer initialized")
         self.project_root = os.path.dirname(__file__)
-        # self.init_timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        # self.output_folder = f'output_{self.init_timestamp}'
-        # os.makedirs(self.output_folder, exist_ok=True)
-        # self.output_file = open(os.path.join(self.output_folder, f'output_{self.init_timestamp}.txt'), 'w')
         self.log_writer('Indexing process started')
 
     def log_writer(self, message):
         log_str = datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + f": {message}\n"
-        # self.output_file.write(log_str)
         print(log_str)
 
     def fetch_batch(self, engine, offset, limit):
@@ -74,4 +69,3 @@ class Indexer:
         # Commit the changes to the index
         index_writer.commit()
         self.log_writer("Indexing process completed.")
-        # self.output_file.close()
