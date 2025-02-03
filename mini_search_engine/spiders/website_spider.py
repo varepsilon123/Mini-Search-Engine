@@ -8,12 +8,11 @@ import datetime
 class WebsiteSpider(CrawlSpider):
     name = "website_spider"
 
-    def __init__(self, start_urls=None, allowed_domains=None, allowed_paths=None, output_file=None, engine=None, insert_crawled_data=None, *args, **kwargs):
+    def __init__(self, start_urls=None, allowed_domains=None, allowed_paths=None, engine=None, insert_crawled_data=None, *args, **kwargs):
         super(WebsiteSpider, self).__init__(*args, **kwargs)  # Initialize the parent class
         self.start_urls = start_urls
         self.allowed_domains = allowed_domains
         self.allowed_paths = allowed_paths
-        self.output_file = output_file
         self.engine = engine
         self.insert_crawled_data = insert_crawled_data
         self.crawled_count = 0
@@ -37,8 +36,7 @@ class WebsiteSpider(CrawlSpider):
 
     def start_requests(self):
         for url in self.start_urls:
-            self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-            self.output_file.write(f': Starting request for URL: {url}\n')
+            print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Starting request for URL: {url}")
             yield scrapy.Request(url=url, callback=self.parse_item, errback=self.errback_httpbin, dont_filter=True)
 
     def parse_item(self, response):
@@ -49,7 +47,7 @@ class WebsiteSpider(CrawlSpider):
         content = ' '.join(response.xpath('//body//text()').getall())
 
         # Insert data into the database
-        self.insert_crawled_data(self.engine, self.output_file, url, title, content)
+        self.insert_crawled_data(self.engine, url, title, content)
 
         # Increment page count for the domain
         domain = response.url.split('//')[-1].split('/')[0]
@@ -57,16 +55,13 @@ class WebsiteSpider(CrawlSpider):
 
         # Check if the page count limit for the domain has been reached
         if self.page_count_per_domain[domain] > self.max_pages_per_domain:
-            self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-            self.output_file.write(f": Skipping further pages for domain: {domain} as page count limit reached\n")
+            print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Skipping further pages for domain: {domain} as page count limit reached")
         else:
             # Continue crawling other pages
-            self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-            self.output_file.write(f": Extracting links from: {response.url}\n")
+            print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Extracting links from: {response.url}")
             links = LinkExtractor(allow=self.allowed_paths, allow_domains=self.allowed_domains).extract_links(response)
             if not links:
-                self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-                self.output_file.write(f": No followable links found on: {response.url}\n")
+                print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: No followable links found on: {response.url}")
             for link in links:
                 yield scrapy.Request(link.url, callback=self.parse_item, errback=self.errback_httpbin)
 
@@ -77,20 +72,15 @@ class WebsiteSpider(CrawlSpider):
         }
 
     def errback_httpbin(self, failure):
-        self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-        self.output_file.write(f": Network error on {failure.request.url}: {failure.value}\n")
+        print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Network error on {failure.request.url}: {failure.value}")
 
     def spider_error(self, failure, response, spider):
-        self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-        self.output_file.write(f": Spider error on {response.url}: {failure.value}\n")
+        print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Spider error on {response.url}: {failure.value}")
 
     def request_dropped(self, request, spider):
-        self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-        self.output_file.write(f": Request dropped: {request.url}\n")
+        print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Request dropped: {request.url}")
 
     def closed(self, reason):
-        self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-        self.output_file.write(f": Spider closed: {reason}, URL: {self.allowed_domains[0]}, Crawled: {self.crawled_count}\n")
+        print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Spider closed: {reason}, URL: {self.allowed_domains[0]}, Crawled: {self.crawled_count}")
         if 'robots.txt' in reason:
-            self.output_file.write(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-            self.output_file.write(f": Crawler stopped due to robots.txt restrictions for URL: {self.allowed_domains[0]}\n")
+            print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Crawler stopped due to robots.txt restrictions for URL: {self.allowed_domains[0]}")

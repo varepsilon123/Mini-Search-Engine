@@ -6,14 +6,14 @@ import datetime
 from sqlalchemy import text
 import logging
 
-def db_test(conn, output_file):
+def db_test(conn):
     try:
         res = conn.execute(text("SELECT now()")).fetchall()
-        output_file.write(f"{str(res)}\n")
+        print(f"{str(res)}")
     except Exception as e:
-        output_file.write(f"Error executing query: {e}\n")
+        print(f"Error executing query: {e}")
 
-def insert_crawled_data(engine, output_file, url, title, content):
+def insert_crawled_data(engine, url, title, content):
     try:
         # upsert data to db
         with engine.connect() as conn:
@@ -28,9 +28,9 @@ def insert_crawled_data(engine, output_file, url, title, content):
                 {"url": url, "title": title, "content": content}
             )
             conn.commit()
-            output_file.write(f"Successfully inserted/updated data for URL: {url}\n")
+            print(f"Successfully inserted/updated data for URL: {url}")
     except Exception as e:
-        output_file.write(f"Error inserting/updating data for URL: {url} - {e}\n")
+        print(f"Error inserting/updating data for URL: {url} - {e}")
         raise
 
 def run_crawler(engine):
@@ -44,15 +44,6 @@ def run_crawler(engine):
             for line in f.readlines()
         ]
 
-    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_folder = f'output_{timestamp}'
-    os.makedirs(output_folder, exist_ok=True)
-    
-    log_file_warning = os.path.join(output_folder, f'log_warning_{timestamp}.txt')
-    log_file_error = os.path.join(output_folder, f'log_error_{timestamp}.txt')
-    log_file_critical = os.path.join(output_folder, f'log_critical_{timestamp}.txt')
-    output_file = open(os.path.join(output_folder, f'output_{timestamp}.txt'), 'w')
-
     settings = {
         'DEPTH_PRIORITY': 1,
         'SCHEDULER_DISK_QUEUE': 'scrapy.squeues.PickleFifoDiskQueue',
@@ -61,9 +52,22 @@ def run_crawler(engine):
         'LOG_LEVEL': 'DEBUG',  # Set the global log level to DEBUG to capture all logs
         'TELNETCONSOLE_ENABLED': False,  # Disable the Telnet console extension
         'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',  # Update to the recommended value
+        'CONCURRENT_REQUESTS': 8,  # Reduce the number of concurrent requests (default: 16)
+        'DOWNLOAD_DELAY': 1,  # Add a delay between requests (default: 0)
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 4,  # Reduce the number of concurrent requests per domain (default: 8)
+        'CONCURRENT_REQUESTS_PER_IP': 4,  # Reduce the number of concurrent requests per IP (default: 0)
+        'AUTOTHROTTLE_ENABLED': True,  # Enable AutoThrottle extension
+        'AUTOTHROTTLE_START_DELAY': 1,  # Initial download delay (default: 5)
+        'AUTOTHROTTLE_MAX_DELAY': 60,  # Maximum download delay (default: 60)
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,  # Average number of requests Scrapy should be sending in parallel (default: 1.0)
+        'AUTOTHROTTLE_DEBUG': False,  # Enable showing throttling stats for every response received (default: False)
     }
 
     # Configure specific loggers for different log levels
+    log_file_warning = 'log_warning.txt'
+    log_file_error = 'log_error.txt'
+    log_file_critical = 'log_critical.txt'
+
     file_handler_warning = logging.FileHandler(log_file_warning, mode='w')
     file_handler_warning.setLevel(logging.WARNING)
     file_handler_error = logging.FileHandler(log_file_error, mode='w')
@@ -85,11 +89,11 @@ def run_crawler(engine):
     process = CrawlerProcess(settings=settings)
 
     # Log here in the output file for the url
-    output_file.write(f'In main, Crawling {len(urls)} URLs.\n')
+    print(f'In main, Crawling {len(urls)} URLs.')
 
     # Test connection
     with engine.connect() as conn:
-        db_test(conn, output_file)
+        db_test(conn)
 
     for url in urls:
         start_urls = [url]
@@ -104,11 +108,9 @@ def run_crawler(engine):
             if path:
                 allowed_paths.append(re.escape(path))
 
-        output_file.write(f'Queuing process: {allowed_domains[0]}\n')
-        process.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, output_file=output_file, engine=engine, insert_crawled_data=insert_crawled_data)
+        print(f'Queuing process: {allowed_domains[0]}')
+        process.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, engine=engine, insert_crawled_data=insert_crawled_data)
 
-    output_file.write('Starting the crawling process...\n')
+    print('Starting the crawling process...')
     process.start()  # Start the crawling process for all URLs
-    output_file.write('Crawling process finished.\n')
-
-    output_file.close()
+    print('Crawling process finished.')
