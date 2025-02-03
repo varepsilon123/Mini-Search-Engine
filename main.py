@@ -13,7 +13,7 @@ if __name__ == "__main__":
     db_password = os.getenv('SQL_password')
     db_connection = os.getenv('SQL_connection')
 
-    print(f"Connecting to database: {db_connection}")
+    print(os.getenv())
     
     # Create database engine
     engine = create_engine(f'cockroachdb://{db_user}:{db_password}{db_connection}')
