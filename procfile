@@ -1,3 +1,0 @@
-web: python main.py crawl
-index: python main.py index
-search: python main.py search
