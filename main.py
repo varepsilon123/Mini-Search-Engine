@@ -7,14 +7,11 @@ from index import Indexer
 from search import Searcher
 
 if __name__ == "__main__":
-    project_root = os.path.dirname(os.path.dirname(__file__))
-    load_dotenv(os.path.join(project_root, 'env/.env'))
+    load_dotenv('env/.env')
     db_user = os.getenv('SQL_user')
     db_password = os.getenv('SQL_password')
     db_connection = os.getenv('SQL_connection')
 
-    print(os.getenv())
-    
     # Create database engine
     engine = create_engine(f'cockroachdb://{db_user}:{db_password}{db_connection}')
 
