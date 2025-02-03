@@ -2,8 +2,9 @@ from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
 import sys
-from index import Indexer
 from crawl import run_crawler
+from index import Indexer
+from search import Searcher
 
 if __name__ == "__main__":
     project_root = os.path.dirname(os.path.dirname(__file__))
@@ -21,3 +22,6 @@ if __name__ == "__main__":
         elif sys.argv[1] == "index":
             indexer = Indexer()
             indexer.run_index(engine)
+        elif sys.argv[1] == "search":
+            searcher = Searcher()
+            searcher.run_search()
