@@ -38,6 +38,7 @@
     <label for="query">Search Query:</label>
     <input type="text" id="query" required>
     <button type="submit">Search</button>
+    <button onclick="window.location.href='statistics.html'">View Statistics Page</button>
   </form>
   <div class="result" id="result"></div>
   <script>
@@ -49,7 +50,8 @@
 
       const query = document.getElementById('query').value;
 
-      fetch('http://0.0.0.0:8000/search', {
+      // fetch('http://0.0.0.0:8000/search', {
+      fetch('http://fungthedev.fun/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
