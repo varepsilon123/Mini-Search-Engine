@@ -1,11 +1,14 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from search import Searcher
 import re
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS
 
 def escape_special_characters(query):
-    return re.escape(query)
+    # Escape special characters without removing them
+    return re.sub(r'([(){}[\]])', r'\\\1', query)
 
 @app.route('/search', methods=['POST'])
 def search():

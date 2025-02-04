@@ -18,6 +18,7 @@ setup(
         "defusedxml==0.7.1",
         "filelock==3.16.1",
         "Flask==3.0.3",
+        "flask-cors==3.0.10",
         "greenlet==3.1.1",
         "gunicorn==23.0.0",
         "hyperlink==21.0.0",
