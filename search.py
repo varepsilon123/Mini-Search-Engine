@@ -1,7 +1,7 @@
 import tantivy
 import os
 import time
-from tantivy import Query, Occur
+from tantivy import Query, Occur, SnippetGenerator
 
 class Searcher:
     def __init__(self):
@@ -50,13 +50,17 @@ class Searcher:
 
         results = []
         if top_docs:
+            snippet_generator = SnippetGenerator.create(
+                self.searcher, complex_query, self.index.schema(), "content"
+            )
             for score, doc_address in top_docs:
                 doc = self.searcher.doc(doc_address)
+                snippet = snippet_generator.snippet_from_doc(doc)
                 results.append({
                     "score": score,
                     "url": doc.get_first("url"),
                     "title": doc.get_first("title"),
-                    "content": doc.get_first("content")
+                    "snippet": snippet.to_html()
                 })
             print(f"Found {len(results)} results in {elapsed_time:.2f} seconds.")
         else:
