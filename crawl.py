@@ -14,6 +14,15 @@ def db_test(conn):
     except Exception as e:
         print(f"Error executing query: {e}")
 
+def truncate_table_if_exists(engine, table_name):
+    with engine.connect() as conn:
+        result = conn.execute(text(f"SELECT to_regclass('{table_name}')")).scalar()
+        if result:
+            conn.execute(text(f"TRUNCATE TABLE {table_name}"))
+            print(f"Table {table_name} truncated.")
+        else:
+            print(f"Table {table_name} does not exist.")
+
 def insert_crawled_data(engine, url, title, content):
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -100,6 +109,9 @@ def run_crawler(engine):
     with engine.connect() as conn:
         db_test(conn)
 
+    # Truncate table if exists
+    truncate_table_if_exists(engine, 'crawled_data')
+
     for url in urls:
         start_urls = [url]
         allowed_domains = []
@@ -114,7 +126,7 @@ def run_crawler(engine):
                 allowed_paths.append(re.escape(path))
 
         print(f'Queuing process: {allowed_domains[0]}')
-        process.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, engine=engine, insert_crawled_data=insert_crawled_data)
+        process.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, engine=engine, insert_crawled_data=insert_crawled_data, max_pages_per_domain=10000)
 
     print('Starting the crawling process...')
     process.start()  # Start the crawling process for all URLs
