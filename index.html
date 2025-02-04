@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Search Engine by Fung</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      font-size: 16px;
+    }
+    button {
+      background-color: royalblue;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: darkblue;
+    }
+    .result {
+      margin-top: 20px;
+    }
+    .result-item {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mini Search Engine by Fung</h1>
+  <form id="searchForm">
+    <label for="query">Search Query:</label>
+    <input type="text" id="query" required>
+    <button type="submit">Search</button>
+  </form>
+  <div class="result" id="result"></div>
+  <script>
+    const form = document.getElementById('searchForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const query = document.getElementById('query').value;
+
+      fetch('http://0.0.0.0:8000/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.results && data.results.length > 0) {
+            resultDiv.innerHTML = `
+              <div class="elaspse-time">
+                <p>Elapsed Time: ${data.elapsed_time} seconds</p>
+              </div>
+            ` + data.results.map(result => `
+              <div class="result-item">
+                <h3>${result.title}</h3>
+                <p>${result.snippet}</p>
+                <a href="${result.url}" target="_blank">${result.url}</a>
+                <p>Score: ${result.score}</p>
+              </div>
+            `).join('');
+          } else {
+            resultDiv.innerHTML = '<p>No results found.</p>';
+          }
+        })
+        .catch((error) => {
+          resultDiv.innerHTML = `Error: ${error.message}`;
+        });
+    });
+  </script>
+</body>
+</html>
