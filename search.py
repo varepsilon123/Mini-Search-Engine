@@ -24,18 +24,18 @@ class Searcher:
                         [
                             Query.boost_query(
                                 self.index.parse_query(query_str, ["title"]), 
-                                2.0
+                                3.0
                             ),
                             Query.boost_query(
                                 self.index.parse_query(query_str, ["content"]), 
-                                1.5
+                                2.0
                             ),
                             Query.boost_query(
                                 self.index.parse_query(query_str, ["url"]), 
-                                0.3
+                                0.5 
                             ),
                         ],
-                        0.3,
+                        0.4,
                     ),
                 )
             ]
