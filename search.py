@@ -1,6 +1,7 @@
 import tantivy
 import os
 import time
+from tantivy import Query, Occur
 
 class Searcher:
     def __init__(self):
@@ -13,11 +14,38 @@ class Searcher:
     def search(self, query_str, top_k=10):
         start_time = time.time()
         print(f"Searching for: {query_str} at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time))}")
-        query = self.index.parse_query(query_str, ["title", "content", "url"])
-        top_ten_docs = self.searcher.search(query, top_k).hits
+        
+        # Create a complex query
+        complex_query = Query.boolean_query(
+            [
+                (
+                    Occur.Must,
+                    Query.disjunction_max_query(
+                        [
+                            Query.boost_query(
+                                self.index.parse_query(query_str, ["title"]), 
+                                2.0
+                            ),
+                            Query.boost_query(
+                                self.index.parse_query(query_str, ["content"]), 
+                                1.5
+                            ),
+                            Query.boost_query(
+                                self.index.parse_query(query_str, ["url"]), 
+                                0.3
+                            ),
+                        ],
+                        0.3,
+                    ),
+                )
+            ]
+        )
+        
+        # Perform search with custom scoring
+        top_docs = self.searcher.search(complex_query, top_k).hits
         results = []
-        if top_ten_docs:
-            for score, doc_address in top_ten_docs:
+        if top_docs:
+            for score, doc_address in top_docs:
                 doc = self.searcher.doc(doc_address)
                 results.append({
                     "score": score,
