@@ -4,6 +4,7 @@ import os
 import re
 import datetime
 from sqlalchemy import text
+from sqlalchemy.orm import sessionmaker
 import logging
 
 def db_test(conn):
@@ -14,24 +15,28 @@ def db_test(conn):
         print(f"Error executing query: {e}")
 
 def insert_crawled_data(engine, url, title, content):
+    Session = sessionmaker(bind=engine)
+    session = Session()
     try:
         # upsert data to db
-        with engine.connect() as conn:
-            conn.execute(
-                text("""
-                    INSERT INTO crawled_data (url, title, content)
-                    VALUES (:url, :title, :content)
-                    ON CONFLICT (url) DO UPDATE SET
-                    title = EXCLUDED.title,
-                    content = EXCLUDED.content
-                """),
-                {"url": url, "title": title, "content": content}
-            )
-            conn.commit()
-            print(f"Successfully inserted/updated data for URL: {url}")
+        session.execute(
+            text("""
+                INSERT INTO crawled_data (url, title, content)
+                VALUES (:url, :title, :content)
+                ON CONFLICT (url) DO UPDATE SET
+                title = EXCLUDED.title,
+                content = EXCLUDED.content
+            """),
+            {"url": url, "title": title, "content": content}
+        )
+        session.commit()
+        print(f"Successfully inserted/updated data for URL: {url}")
     except Exception as e:
         print(f"Error inserting/updating data for URL: {url} - {e}")
+        session.rollback()
         raise
+    finally:
+        session.close()
 
 def run_crawler(engine):
     project_root = os.path.dirname(__file__)
