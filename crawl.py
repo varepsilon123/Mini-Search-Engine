@@ -14,14 +14,22 @@ def db_test(conn):
     except Exception as e:
         print(f"Error executing query: {e}")
 
-def truncate_table_if_exists(engine, table_name):
+def create_table_if_not_exists(engine, table_name):
     with engine.connect() as conn:
         result = conn.execute(text(f"SELECT to_regclass('{table_name}')")).scalar()
-        if result:
-            conn.execute(text(f"TRUNCATE TABLE {table_name}"))
-            print(f"Table {table_name} truncated.")
+        if not result:
+            conn.execute(text(f"""
+                CREATE TABLE {table_name} (
+                    id SERIAL PRIMARY KEY,
+                    url TEXT UNIQUE NOT NULL,
+                    title TEXT,
+                    content TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """))
+            print(f"Table {table_name} created.")
         else:
-            print(f"Table {table_name} does not exist.")
+            print(f"Table {table_name} already exists.")
 
 def insert_crawled_data(engine, url, title, content):
     Session = sessionmaker(bind=engine)
@@ -110,7 +118,7 @@ def run_crawler(engine):
         db_test(conn)
 
     # Truncate table if exists
-    truncate_table_if_exists(engine, 'crawled_data')
+    create_table_if_not_exists(engine, 'crawled_data')
 
     for url in urls:
         start_urls = [url]
