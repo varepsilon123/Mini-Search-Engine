@@ -10,8 +10,8 @@ document.getElementById('fetchAveragePageSize').addEventListener('click', () => 
   fetchAveragePageSize();
 });
 
-const APIurl = 'http://0.0.0.0:8000';
-// const APIurl = 'http://fungthedev.fun/api';
+// const APIurl = 'http://0.0.0.0:8000';
+const APIurl = 'http://fungthedev.fun/api';
 
 function fetchFromAPI(endpoint) {
   return fetch(`${APIurl}/${endpoint}`)
