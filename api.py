@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from search import Searcher
+from statistics_page import get_indexed_pages_per_domain
 import re
 
 app = Flask(__name__)
@@ -22,6 +23,11 @@ def search():
     searcher = Searcher()
     results = searcher.search(query_str)
     
+    return jsonify(results)
+
+@app.route('/indexed_pages', methods=['GET'])
+def indexed_pages():
+    results = get_indexed_pages_per_domain()
     return jsonify(results)
 
 if __name__ == "__main__":
