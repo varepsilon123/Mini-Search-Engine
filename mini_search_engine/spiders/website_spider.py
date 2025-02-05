@@ -40,30 +40,35 @@ class WebsiteSpider(CrawlSpider):
             yield scrapy.Request(url=url, callback=self.parse_item, errback=self.errback_httpbin, dont_filter=True)
 
     def parse_item(self, response):
-        self.crawled_count += 1
         # Define the data to be extracted from each page
         url = response.url
         title = response.xpath('//title/text()').get()
         content = ' '.join(response.xpath('//body//text()').getall())
 
         # Insert data into the database
-        self.insert_crawled_data(self.engine, url, title, content)
+        try:
+            self.insert_crawled_data(self.engine, url, title, content)
+            self.crawled_count += 1
 
-        # Increment page count for the domain
-        domain = response.url.split('//')[-1].split('/')[0]
-        self.page_count_per_domain[domain] += 1
+            # Increment page count for the domain
+            domain = response.url.split('//')[-1].split('/')[0]
+            self.page_count_per_domain[domain] += 1
 
-        # Check if the page count limit for the domain has been reached
-        if self.page_count_per_domain[domain] > self.max_pages_per_domain:
-            print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Skipping further pages for domain: {domain} as page count limit reached")
-        else:
-            # Continue crawling other pages
-            print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Extracting links from: {response.url}")
-            links = LinkExtractor(allow=self.allowed_paths, allow_domains=self.allowed_domains).extract_links(response)
-            if not links:
-                print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: No followable links found on: {response.url}")
-            for link in links:
-                yield scrapy.Request(link.url, callback=self.parse_item, errback=self.errback_httpbin)
+            # Check if the page count limit for the domain has been reached
+            if self.page_count_per_domain[domain] > self.max_pages_per_domain:
+                print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Skipping further pages for domain: {domain} as page count limit reached")
+                return
+        except Exception as e:
+            print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Error inserting data for URL: {url} - {e}")
+            return
+
+        # Continue crawling other pages
+        print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Extracting links from: {response.url}")
+        links = LinkExtractor(allow=self.allowed_paths, allow_domains=self.allowed_domains).extract_links(response)
+        if not links:
+            print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: No followable links found on: {response.url}")
+        for link in links:
+            yield scrapy.Request(link.url, callback=self.parse_item, errback=self.errback_httpbin)
 
         yield {
             'url': url,
