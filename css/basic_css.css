@@ -1,5 +1,8 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Noto Sans JP', serif !important;
+  font-optical-sizing: auto !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
   margin: 20px;
 }
 
