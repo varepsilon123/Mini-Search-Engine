@@ -3,6 +3,7 @@ import os
 import datetime
 from sqlalchemy import text
 from concurrent.futures import ThreadPoolExecutor
+import shutil
 
 class Indexer:
     def __init__(self):
@@ -41,8 +42,12 @@ class Indexer:
 
         # Create an index
         index_path = os.path.join(self.project_root, 'tantivy_index')
-        if not os.path.exists(index_path):
-            os.makedirs(index_path)
+        
+        # Delete existing index directory if it exists
+        if os.path.exists(index_path):
+            shutil.rmtree(index_path)
+        
+        os.makedirs(index_path)
         index = tantivy.Index(schema, path=index_path)
 
         # Create an index writer
