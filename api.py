@@ -37,8 +37,8 @@ def total_crawl_time():
 
 @app.route('/average_page_size', methods=['GET'])
 def average_page_size():
-    result = get_average_page_size()
-    return jsonify({"average_page_size": result})
+    results = get_average_page_size()
+    return jsonify(results)
 
 if __name__ == "__main__":
     app.run(debug=True)
