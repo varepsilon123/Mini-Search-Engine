@@ -17,10 +17,13 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "crawl":
+            # Run the crawler
             run_crawler(engine)
         elif sys.argv[1] == "index":
+            # Run the indexer
             indexer = Indexer()
             indexer.run_index(engine)
         elif sys.argv[1] == "search":
+            # Run the searcher, for testing purposes
             searcher = Searcher()
             searcher.run_search()
