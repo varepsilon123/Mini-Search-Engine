@@ -49,8 +49,8 @@
       const resultsDiv = document.getElementById('results');
       resultsDiv.innerHTML = 'Loading...';
         const start_time = new Date().getTime();
-      fetch('http://0.0.0.0:8000/indexed_pages')
-    //   fetch('http://fungthedev.fun/indexed_pages')
+    //   fetch('http://0.0.0.0:8000/indexed_pages')
+      fetch('http://fungthedev.fun/indexed_pages')
         .then((response) => response.json())
         .then((data) => {
             const elapsed_time = new Date().getTime() - start_time;
