@@ -4,63 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Indexed Pages Statistics</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      background-color: royalblue;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover {
-      background-color: darkblue;
-    }
-    .results {
-      margin-top: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f4f4f4;
-    }
-  </style>
+  <link rel="stylesheet" href="css/basic_css.css">
 </head>
 <body>
   <h1>Indexed Pages Statistics</h1>
   <button id="fetchData">Fetch Data</button>
-    <a href="index.html">
-        <button>Back</button>
-    </a>
+  <a href="index.html">
+    <button>Back</button>
+  </a>
   <div class="results" id="results"></div>
   <script>
     document.getElementById('fetchData').addEventListener('click', () => {
       const resultsDiv = document.getElementById('results');
       resultsDiv.innerHTML = 'Loading...';
-        const start_time = new Date().getTime();
-    //   fetch('http://0.0.0.0:8000/indexed_pages')
+      const start_time = new Date().getTime();
+      // fetch('http://0.0.0.0:8000/indexed_pages')
       fetch('http://fungthedev.fun/api/indexed_pages')
         .then((response) => response.json())
         .then((data) => {
-            const elapsed_time = new Date().getTime() - start_time;
-            resultsDiv.innerHTML = '';
+          const elapsed_time = new Date().getTime() - start_time;
+          resultsDiv.innerHTML = '';
 
-            // Add elapsed time display
-            const elapsedTimeDiv = document.createElement('div');
-            elapsedTimeDiv.style.margin = '10px 0';
-            elapsedTimeDiv.textContent = `Elapsed time: ${elapsed_time}ms`;
-            resultsDiv.appendChild(elapsedTimeDiv);
+          // Add elapsed time display
+          const elapsedTimeDiv = document.createElement('div');
+          elapsedTimeDiv.style.margin = '10px 0';
+          elapsedTimeDiv.textContent = `Elapsed time: ${elapsed_time}ms`;
+          resultsDiv.appendChild(elapsedTimeDiv);
 
           const table = document.createElement('table');
           const thead = document.createElement('thead');
