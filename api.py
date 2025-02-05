@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from search import Searcher
-from statistics_page import get_indexed_pages_per_domain
+from statistics_page import get_indexed_pages_per_domain, get_total_crawl_time, get_average_page_size
 import re
 
 app = Flask(__name__)
@@ -29,6 +29,16 @@ def search():
 def indexed_pages():
     results = get_indexed_pages_per_domain()
     return jsonify(results)
+
+@app.route('/total_crawl_time', methods=['GET'])
+def total_crawl_time():
+    results = get_total_crawl_time()
+    return jsonify(results)
+
+@app.route('/average_page_size', methods=['GET'])
+def average_page_size():
+    result = get_average_page_size()
+    return jsonify({"average_page_size": result})
 
 if __name__ == "__main__":
     app.run(debug=True)

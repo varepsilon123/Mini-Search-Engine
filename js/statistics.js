@@ -1,9 +1,21 @@
-document.getElementById('fetchData').addEventListener('click', () => {
+document.getElementById('fetchIndexedPages').addEventListener('click', () => {
+  fetchData('indexed_pages', 'URL (Alphabetical Order)', 'Indexed Pages', 'page_count');
+});
+
+document.getElementById('fetchTotalCrawlTime').addEventListener('click', () => {
+  fetchData('total_crawl_time', 'URL', 'Total Crawl Time', 'total_crawl_time');
+});
+
+document.getElementById('fetchAveragePageSize').addEventListener('click', () => {
+  fetchData('average_page_size', 'Metric', 'Value', 'average_page_size', true);
+});
+
+function fetchData(endpoint, col1Header, col2Header, col2Key, isSingleValue = false) {
   const resultsDiv = document.getElementById('results');
   resultsDiv.innerHTML = 'Loading...';
   const start_time = new Date().getTime();
-  // fetch('http://0.0.0.0:8000/indexed_pages')
-  fetch('http://fungthedev.fun/api/indexed_pages')
+//   fetch(`http://0.0.0.0:8000/${endpoint}`)
+  fetch(`http://fungthedev.fun/api/${endpoint}`)
     .then((response) => response.json())
     .then((data) => {
       const elapsed_time = new Date().getTime() - start_time;
@@ -21,19 +33,28 @@ document.getElementById('fetchData').addEventListener('click', () => {
 
       thead.innerHTML = `
         <tr>
-          <th>URL (Alphabetical Order)</th>
-          <th>Indexed Pages</th>
+          <th>${col1Header}</th>
+          <th>${col2Header}</th>
         </tr>
       `;
 
-      data.forEach((item) => {
+      if (isSingleValue) {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${item.url}</td>
-          <td>${item.page_count}</td>
+          <td>${col2Header}</td>
+          <td>${data[col2Key]}</td>
         `;
         tbody.appendChild(row);
-      });
+      } else {
+        data.forEach((item) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item.url}</td>
+            <td>${item[col2Key]}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
 
       table.appendChild(thead);
       table.appendChild(tbody);
@@ -42,4 +63,4 @@ document.getElementById('fetchData').addEventListener('click', () => {
     .catch((error) => {
       resultsDiv.innerHTML = `Error: ${error.message}`;
     });
-});
+}
