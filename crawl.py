@@ -53,9 +53,11 @@ def insert_crawled_data(engine, url, title, content):
     finally:
         session.close()
 
-def insert_failed_log(engine, url, issue, reason):
+def insert_failed_log(engine, url, issue, reason=None):
     Session = sessionmaker(bind=engine)
     session = Session()
+    if not reason:
+        reason = 'Unknown'
     try:
         session.execute(
             text("""
