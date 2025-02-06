@@ -100,13 +100,19 @@ def get_average_page_size():
             total_docs += 1
 
         average_size = total_size / total_docs if total_docs > 0 else 0
+
+        # Redundant unit conversion, but it's okay for now
         if average_size >= 1_000_000:
             average_size_display = f"{average_size / 1_000_000:.2f} MB"
+        elif average_size >= 1_000:
+            average_size_display = f"{average_size / 1_000:.2f} KB"
         else:
             average_size_display = f"{average_size:.2f} bytes"
         
         if total_size >= 1_000_000:
             total_size_display = f"{total_size / 1_000_000:.2f} MB"
+        elif total_size >= 1_000:
+            total_size_display = f"{total_size / 1_000:.2f} KB"
         else:
             total_size_display = f"{total_size:.2f} bytes"
         

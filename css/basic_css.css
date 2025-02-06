@@ -35,7 +35,16 @@ th, td {
 }
 
 th {
-  background-color: #f4f4f4;
+  background-color: #4169e1;
+  color: white;
+}
+
+tr:nth-child(odd) td {
+  background-color: #f6f6f6;
+}
+
+tr:nth-child(even) td {
+  background-color: #e0ecff;
 }
 
 input, button {

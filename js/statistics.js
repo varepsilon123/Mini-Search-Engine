@@ -42,7 +42,11 @@ function fetchIndexedPages() {
       const thead = document.createElement('thead');
       const tbody = document.createElement('tbody');
 
-      thead.innerHTML = `<tr><th>URL (Alphabetical Order)</th><th>Indexed Pages</th></tr>`;
+      const header = document.createElement('h2');
+      header.textContent = 'Indexed Pages';
+      resultsDiv.appendChild(header);
+
+      thead.innerHTML = `<tr><th style="width: 50%;">URL (Alphabetical Order)</th><th style="width: 50%;">Indexed Pages</th></tr>`;
 
       data.forEach((item) => {
         const row = document.createElement('tr');
@@ -84,7 +88,11 @@ function fetchTotalCrawlTime() {
       const thead = document.createElement('thead');
       const tbody = document.createElement('tbody');
 
-      thead.innerHTML = `<tr><th>URL</th><th>Total Crawl Time</th></tr>`;
+      const header = document.createElement('h2');
+      header.textContent = 'Total Crawl Time';
+      resultsDiv.appendChild(header);
+
+      thead.innerHTML = `<tr><th style="width: 50%;">URL</th><th style="width: 50%;">Total Crawl Time</th></tr>`;
 
       data.forEach((item) => {
         const row = document.createElement('tr');
@@ -126,7 +134,11 @@ function fetchAveragePageSize() {
       const thead = document.createElement('thead');
       const tbody = document.createElement('tbody');
 
-      thead.innerHTML = `<tr><th>URL</th><th>Total Docs</th><th>Average Size</th><th>Total Size</th></tr>`;
+      const header = document.createElement('h2');
+      header.textContent = 'Average Page Size';
+      resultsDiv.appendChild(header);
+
+      thead.innerHTML = `<tr><th style="width: 25%;">URL</th><th style="width: 25%;">Total Docs</th><th style="width: 25%;">Average Size</th><th style="width: 25%;">Total Size</th></tr>`;
 
       data.forEach((item) => {
         const row = document.createElement('tr');
