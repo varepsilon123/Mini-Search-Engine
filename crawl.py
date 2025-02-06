@@ -1,4 +1,4 @@
-from scrapy.crawler import CrawlerRunner
+from scrapy.crawler import CrawlerProcess
 from twisted.internet import reactor, defer
 from twisted.internet.task import react
 from mini_search_engine.spiders.website_spider import WebsiteSpider
@@ -75,24 +75,6 @@ def insert_failed_log(engine, url, issue, reason):
     finally:
         session.close()
 
-@defer.inlineCallbacks
-def crawl_one_domain(runner, url, engine):
-    start_urls = [url]
-    allowed_domains = []
-    allowed_paths = []
-
-    for url in start_urls:
-        domain = url.split('//')[-1].split('/')[0]
-        allowed_domains.append(domain)
-        
-        path = '/'.join(url.split('//')[-1].split('/')[1:])
-        if path:
-            allowed_paths.append(re.escape(path))
-
-    print(f'Queuing process: {allowed_domains[0]}')
-    yield runner.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, engine=engine, insert_crawled_data=insert_crawled_data, insert_failed_log=insert_failed_log, max_pages_per_domain=10000)
-    print(f'Crawling process finished for domain: {allowed_domains[0]}.')
-
 def run_crawler(engine):
     project_root = os.path.dirname(__file__)
     website_list_path = os.path.join(project_root, 'website_list_full.txt')
@@ -114,7 +96,7 @@ def run_crawler(engine):
         'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',  # Update to the recommended value
         'CONCURRENT_REQUESTS': 16,  # Reduce the number of concurrent requests (default: 16)
         'DOWNLOAD_DELAY': 0,  # Increase the delay between requests (default: 0)
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 0,  # Reduce the number of concurrent requests per domain (default: 8)
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 8,  # Reduce the number of concurrent requests per domain (default: 8)
         'CONCURRENT_REQUESTS_PER_IP': 0,  # Reduce the number of concurrent requests per IP (default: 0)
         'AUTOTHROTTLE_ENABLED': True,  # Enable AutoThrottle extension
         'AUTOTHROTTLE_START_DELAY': 5,  # Increase initial download delay (default: 5)
@@ -123,30 +105,7 @@ def run_crawler(engine):
         'AUTOTHROTTLE_DEBUG': False,  # Disable showing throttling stats for every response received (default: False)
     }
 
-    # Configure specific loggers for different log levels
-    # log_file_warning = 'log_warning.txt'
-    # log_file_error = 'log_error.txt'
-    # log_file_critical = 'log_critical.txt'
-
-    # file_handler_warning = logging.FileHandler(log_file_warning, mode='w')
-    # file_handler_warning.setLevel(logging.WARNING)
-    # file_handler_error = logging.FileHandler(log_file_error, mode='w')
-    # file_handler_error.setLevel(logging.ERROR)
-    # file_handler_critical = logging.FileHandler(log_file_critical, mode='w')
-    # file_handler_critical.setLevel(logging.CRITICAL)
-
-    # logging.basicConfig(
-    #     level=logging.DEBUG,
-    #     format='%(asctime)s [%(name)s] %(levelname)s: %(message)s',
-    #     handlers=[
-    #         file_handler_warning,
-    #         file_handler_error,
-    #         file_handler_critical,
-    #         logging.StreamHandler()
-    #     ]
-    # )
-
-    runner = CrawlerRunner(settings=settings)
+    process = CrawlerProcess(settings=settings)
 
     # Log here in the output file for the url
     print(f'In main, Crawling {len(urls)} URLs.')
@@ -158,11 +117,22 @@ def run_crawler(engine):
     # Truncate table if exists
     create_table_if_not_exists(engine, 'crawled_data')
 
-    @defer.inlineCallbacks
-    def crawl_all():
-        for url in urls:
-            yield crawl_one_domain(runner, url, engine)
-        reactor.stop()
+    for url in urls:
+        start_urls = [url]
+        allowed_domains = []
+        allowed_paths = []
 
-    react(lambda _: crawl_all())
-    print('All crawling processes finished.')
+        for url in start_urls:
+            domain = url.split('//')[-1].split('/')[0]
+            allowed_domains.append(domain)
+            
+            path = '/'.join(url.split('//')[-1].split('/')[1:])
+            if path:
+                allowed_paths.append(re.escape(path))
+
+        print(f'Queuing process: {allowed_domains[0]}')
+        process.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, engine=engine, insert_crawled_data=insert_crawled_data, insert_failed_log=insert_failed_log, max_pages_per_domain=10000)
+
+    print('Starting the crawling process...')
+    process.start()  # Start the crawling process for all URLs
+    print('Crawling process finished.')
