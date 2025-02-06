@@ -85,7 +85,7 @@ class WebsiteSpider(CrawlSpider):
         print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Spider error on {response.url}: {failure.value}")
         self.insert_failed_log(self.engine, response.url, 'Spider error', str(failure.value))
 
-    def request_dropped(self, request, spider, reason):
+    def request_dropped(self, request, spider):
         print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Request dropped: {request.url}")
         self.insert_failed_log(self.engine, request.url, 'Request dropped')
 
