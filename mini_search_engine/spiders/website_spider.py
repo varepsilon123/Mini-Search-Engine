@@ -8,13 +8,14 @@ import datetime
 class WebsiteSpider(CrawlSpider):
     name = "website_spider"
 
-    def __init__(self, start_urls=None, allowed_domains=None, allowed_paths=None, engine=None, insert_crawled_data=None, *args, **kwargs):
+    def __init__(self, start_urls=None, allowed_domains=None, allowed_paths=None, engine=None, insert_crawled_data=None, insert_failed_log=None, *args, **kwargs):
         super(WebsiteSpider, self).__init__(*args, **kwargs)  # Initialize the parent class
         self.start_urls = start_urls
         self.allowed_domains = allowed_domains
         self.allowed_paths = allowed_paths
         self.engine = engine
         self.insert_crawled_data = insert_crawled_data
+        self.insert_failed_log = insert_failed_log  # Store the function reference
         self.crawled_count = 0
 
         # Initialize page count per domain
@@ -78,12 +79,15 @@ class WebsiteSpider(CrawlSpider):
 
     def errback_httpbin(self, failure):
         print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Network error on {failure.request.url}: {failure.value}")
+        self.insert_failed_log(self.engine, failure.request.url, 'Network error', str(failure.value))
 
     def spider_error(self, failure, response, spider):
         print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Spider error on {response.url}: {failure.value}")
+        self.insert_failed_log(self.engine, response.url, 'Spider error', str(failure.value))
 
-    def request_dropped(self, request, spider):
-        print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Request dropped: {request.url}")
+    def request_dropped(self, request, spider, reason):
+        print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Request dropped: {request.url}, Reason: {reason}")
+        self.insert_failed_log(self.engine, request.url, 'Request dropped', str(reason))
 
     def closed(self, reason):
         print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Spider closed: {reason}, URL: {self.allowed_domains[0]}, Crawled: {self.crawled_count}")

@@ -1,11 +1,12 @@
-from scrapy.crawler import CrawlerProcess
+from scrapy.crawler import CrawlerRunner
+from twisted.internet import reactor, defer
+from twisted.internet.task import react
+from scrapy.crawler import CrawlerRunner
 from mini_search_engine.spiders.website_spider import WebsiteSpider
 import os
 import re
-import datetime
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
-import logging
 
 def db_test(conn):
     try:
@@ -54,6 +55,44 @@ def insert_crawled_data(engine, url, title, content):
         raise
     finally:
         session.close()
+
+def insert_failed_log(engine, url, issue, reason):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    try:
+        session.execute(
+            text("""
+                INSERT INTO failed_logs (url, issue, reason)
+                VALUES (:url, :issue, :reason)
+            """),
+            {"url": url, "issue": issue, "reason": reason}
+        )
+        session.commit()
+        print(f"Successfully inserted failed log for URL: {url}")
+    except Exception as e:
+        print(f"Error inserting failed log for URL: {url} - {e}")
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+@defer.inlineCallbacks
+def crawl_one_domain(runner, url, engine):
+    start_urls = [url]
+    allowed_domains = []
+    allowed_paths = []
+
+    for url in start_urls:
+        domain = url.split('//')[-1].split('/')[0]
+        allowed_domains.append(domain)
+        
+        path = '/'.join(url.split('//')[-1].split('/')[1:])
+        if path:
+            allowed_paths.append(re.escape(path))
+
+    print(f'Queuing process: {allowed_domains[0]}')
+    yield runner.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, engine=engine, insert_crawled_data=insert_crawled_data, insert_failed_log=insert_failed_log, max_pages_per_domain=10000)
+    print(f'Crawling process finished for domain: {allowed_domains[0]}.')
 
 def run_crawler(engine):
     project_root = os.path.dirname(__file__)
@@ -108,7 +147,7 @@ def run_crawler(engine):
     #     ]
     # )
 
-    process = CrawlerProcess(settings=settings)
+    runner = CrawlerRunner(settings=settings)
 
     # Log here in the output file for the url
     print(f'In main, Crawling {len(urls)} URLs.')
@@ -120,25 +159,11 @@ def run_crawler(engine):
     # Truncate table if exists
     create_table_if_not_exists(engine, 'crawled_data')
 
-    # Process each domain sequentially
-    for url in urls:
-        start_urls = [url]
-        allowed_domains = []
-        allowed_paths = []
+    @defer.inlineCallbacks
+    def crawl_all():
+        for url in urls:
+            yield crawl_one_domain(runner, url, engine)
+        reactor.stop()
 
-        for url in start_urls:
-            domain = url.split('//')[-1].split('/')[0]
-            allowed_domains.append(domain)
-            
-            path = '/'.join(url.split('//')[-1].split('/')[1:])
-            if path:
-                allowed_paths.append(re.escape(path))
-
-        print(f'Queuing process: {allowed_domains[0]}')
-        process.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, engine=engine, insert_crawled_data=insert_crawled_data, max_pages_per_domain=10000)
-
-        print(f'Starting the crawling process for domain: {allowed_domains[0]}...')
-        process.start()  # Start the crawling process for the current domain
-        print(f'Crawling process finished for domain: {allowed_domains[0]}.')
-
+    react(lambda _: crawl_all())
     print('All crawling processes finished.')
