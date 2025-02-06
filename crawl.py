@@ -1,6 +1,4 @@
 from scrapy.crawler import CrawlerProcess
-from twisted.internet import reactor, defer
-from twisted.internet.task import react
 from mini_search_engine.spiders.website_spider import WebsiteSpider
 import os
 import re
