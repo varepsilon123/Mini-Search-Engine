@@ -71,42 +71,42 @@ def run_crawler(engine):
         'SCHEDULER_DISK_QUEUE': 'scrapy.squeues.PickleFifoDiskQueue',
         'SCHEDULER_MEMORY_QUEUE': 'scrapy.squeues.FifoMemoryQueue',
         'DUPEFILTER_CLASS': 'scrapy.dupefilters.RFPDupeFilter',  # Use the default duplicate filter
-        'LOG_LEVEL': 'DEBUG',  # Set the global log level to DEBUG to capture all logs
+        # 'LOG_LEVEL': 'DEBUG',  # Set the global log level to DEBUG to capture all logs
         'TELNETCONSOLE_ENABLED': False,  # Disable the Telnet console extension
         'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',  # Update to the recommended value
-        'CONCURRENT_REQUESTS': 8,  # Reduce the number of concurrent requests (default: 16)
-        'DOWNLOAD_DELAY': 1,  # Add a delay between requests (default: 0)
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 4,  # Reduce the number of concurrent requests per domain (default: 8)
-        'CONCURRENT_REQUESTS_PER_IP': 4,  # Reduce the number of concurrent requests per IP (default: 0)
+        'CONCURRENT_REQUESTS': 4,  # Reduce the number of concurrent requests (default: 16)
+        'DOWNLOAD_DELAY': 2,  # Increase the delay between requests (default: 0)
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 2,  # Reduce the number of concurrent requests per domain (default: 8)
+        'CONCURRENT_REQUESTS_PER_IP': 2,  # Reduce the number of concurrent requests per IP (default: 0)
         'AUTOTHROTTLE_ENABLED': True,  # Enable AutoThrottle extension
-        'AUTOTHROTTLE_START_DELAY': 1,  # Initial download delay (default: 5)
+        'AUTOTHROTTLE_START_DELAY': 2,  # Increase initial download delay (default: 5)
         'AUTOTHROTTLE_MAX_DELAY': 60,  # Maximum download delay (default: 60)
-        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,  # Average number of requests Scrapy should be sending in parallel (default: 1.0)
-        'AUTOTHROTTLE_DEBUG': False,  # Enable showing throttling stats for every response received (default: False)
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 0.5,  # Reduce average number of requests Scrapy should be sending in parallel (default: 1.0)
+        'AUTOTHROTTLE_DEBUG': False,  # Disable showing throttling stats for every response received (default: False)
     }
 
     # Configure specific loggers for different log levels
-    log_file_warning = 'log_warning.txt'
-    log_file_error = 'log_error.txt'
-    log_file_critical = 'log_critical.txt'
+    # log_file_warning = 'log_warning.txt'
+    # log_file_error = 'log_error.txt'
+    # log_file_critical = 'log_critical.txt'
 
-    file_handler_warning = logging.FileHandler(log_file_warning, mode='w')
-    file_handler_warning.setLevel(logging.WARNING)
-    file_handler_error = logging.FileHandler(log_file_error, mode='w')
-    file_handler_error.setLevel(logging.ERROR)
-    file_handler_critical = logging.FileHandler(log_file_critical, mode='w')
-    file_handler_critical.setLevel(logging.CRITICAL)
+    # file_handler_warning = logging.FileHandler(log_file_warning, mode='w')
+    # file_handler_warning.setLevel(logging.WARNING)
+    # file_handler_error = logging.FileHandler(log_file_error, mode='w')
+    # file_handler_error.setLevel(logging.ERROR)
+    # file_handler_critical = logging.FileHandler(log_file_critical, mode='w')
+    # file_handler_critical.setLevel(logging.CRITICAL)
 
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s [%(name)s] %(levelname)s: %(message)s',
-        handlers=[
-            file_handler_warning,
-            file_handler_error,
-            file_handler_critical,
-            logging.StreamHandler()
-        ]
-    )
+    # logging.basicConfig(
+    #     level=logging.DEBUG,
+    #     format='%(asctime)s [%(name)s] %(levelname)s: %(message)s',
+    #     handlers=[
+    #         file_handler_warning,
+    #         file_handler_error,
+    #         file_handler_critical,
+    #         logging.StreamHandler()
+    #     ]
+    # )
 
     process = CrawlerProcess(settings=settings)
 
@@ -120,6 +120,7 @@ def run_crawler(engine):
     # Truncate table if exists
     create_table_if_not_exists(engine, 'crawled_data')
 
+    # Process each domain sequentially
     for url in urls:
         start_urls = [url]
         allowed_domains = []
@@ -136,6 +137,8 @@ def run_crawler(engine):
         print(f'Queuing process: {allowed_domains[0]}')
         process.crawl(WebsiteSpider, start_urls=start_urls, allowed_domains=allowed_domains, allowed_paths=allowed_paths, engine=engine, insert_crawled_data=insert_crawled_data, max_pages_per_domain=10000)
 
-    print('Starting the crawling process...')
-    process.start()  # Start the crawling process for all URLs
-    print('Crawling process finished.')
+        print(f'Starting the crawling process for domain: {allowed_domains[0]}...')
+        process.start()  # Start the crawling process for the current domain
+        print(f'Crawling process finished for domain: {allowed_domains[0]}.')
+
+    print('All crawling processes finished.')
