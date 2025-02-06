@@ -7,13 +7,13 @@
   <link rel="stylesheet" href="css/basic_css.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400&display=swap" rel="stylesheet">
 </head>
-<body>
-  <h1>Mini Search Engine by Fung</h1>
+<body class="transition-all duration-1000 mt-72 text-center animate-fadeIn">
+  <h1 class="transition-all duration-1000 scale-150 mt-72 text-center animate-fadeIn">Mini Search Engine by Fung</h1>
   <form id="searchForm">
-    <label for="query">Search Query:</label>
-    <input type="text" id="query" required>
-    <button type="submit">Search</button>
-    <button onclick="window.location.href='statistics.html'">View Statistics Page</button>
+    <!-- <label for="query">Search Query:</label> -->
+    <input type="text" id="query" placeholder="Search here" class="pre-search-margin" required>
+    <button type="submit" class="pre-search-margin">Search</button>
+    <button onclick="window.location.href='statistics.html'" class="pre-search-margin">View Statistics Page</button>
   </form>
   <div class="result" id="result"></div>
   <script src="js/index.js"></script>

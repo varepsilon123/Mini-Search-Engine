@@ -17,6 +17,15 @@ form.addEventListener('submit', (event) => {
     .then((response) => response.json())
     .then((data) => {
       if (data.results && data.results.length > 0) {
+        // Remove CSS classes from body and h1
+        document.body.classList.remove('transition-all', 'duration-1000', 'ease-in-out', 'mt-72', 'text-center', 'animate-fadeIn');
+        const h1 = document.querySelector('h1');
+        const button = document.querySelector('button');
+        const input = document.querySelector('input');
+        h1.classList.remove('transition-all', 'duration-1000', 'ease-in-out', 'scale-150', 'mt-72', 'text-center', 'animate-fadeIn');
+        button.classList.remove('pre-search-margin');
+        input.classList.remove('pre-search-margin');
+
         resultDiv.innerHTML = `
           <div class="elaspse-time">
             <p>Elapsed Time: ${data.elapsed_time} seconds</p>

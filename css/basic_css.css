@@ -47,10 +47,29 @@ tr:nth-child(even) td {
   background-color: #e0ecff;
 }
 
+input {
+  background-color: rgb(211, 211, 211);
+  width: 100%; /* Make the input box longer */
+  max-width: 600px; /* Set a maximum width */
+}
+
 input, button {
   padding: 10px;
-  margin: 5px 0;
   font-size: 16px;
+  padding: 10px 20px;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  border-radius: 4px;
+  border: none;
+}
+
+button {
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  border-radius: 4px;
 }
 
 .result {
@@ -60,4 +79,52 @@ input, button {
 .result-item {
   border-bottom: 1px solid #ccc;
   padding: 10px 0;
+}
+
+.back-button {
+  background-color: #7f7f7f; /* Darker background color */
+  color: white;
+}
+
+.back-button:hover {
+  background-color: #333; /* Even darker on hover */
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.scale-150 {
+  transform: scale(1.5);
+}
+
+.scale-100 {
+  transform: scale(1);
+}
+
+.mt-72 {
+  margin-top: 18rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 1s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.pre-search-margin {
+  margin-top: 20px;
 }
