@@ -112,14 +112,14 @@ def run_crawler(engine):
         # 'LOG_LEVEL': 'DEBUG',  # Set the global log level to DEBUG to capture all logs
         'TELNETCONSOLE_ENABLED': False,  # Disable the Telnet console extension
         'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',  # Update to the recommended value
-        'CONCURRENT_REQUESTS': 4,  # Reduce the number of concurrent requests (default: 16)
-        'DOWNLOAD_DELAY': 2,  # Increase the delay between requests (default: 0)
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 2,  # Reduce the number of concurrent requests per domain (default: 8)
-        'CONCURRENT_REQUESTS_PER_IP': 2,  # Reduce the number of concurrent requests per IP (default: 0)
+        'CONCURRENT_REQUESTS': 16,  # Reduce the number of concurrent requests (default: 16)
+        'DOWNLOAD_DELAY': 0,  # Increase the delay between requests (default: 0)
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 0,  # Reduce the number of concurrent requests per domain (default: 8)
+        'CONCURRENT_REQUESTS_PER_IP': 0,  # Reduce the number of concurrent requests per IP (default: 0)
         'AUTOTHROTTLE_ENABLED': True,  # Enable AutoThrottle extension
-        'AUTOTHROTTLE_START_DELAY': 2,  # Increase initial download delay (default: 5)
+        'AUTOTHROTTLE_START_DELAY': 5,  # Increase initial download delay (default: 5)
         'AUTOTHROTTLE_MAX_DELAY': 60,  # Maximum download delay (default: 60)
-        'AUTOTHROTTLE_TARGET_CONCURRENCY': 0.5,  # Reduce average number of requests Scrapy should be sending in parallel (default: 1.0)
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1,  # Reduce average number of requests Scrapy should be sending in parallel (default: 1.0)
         'AUTOTHROTTLE_DEBUG': False,  # Disable showing throttling stats for every response received (default: False)
     }
 
