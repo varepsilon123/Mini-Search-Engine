@@ -1,6 +1,7 @@
 import os
-import datetime
 import tantivy
+from sqlalchemy import create_engine, text
+from dotenv import load_dotenv
 
 def get_indexed_pages_per_domain():
     project_root = os.path.dirname(__file__)
@@ -128,5 +129,30 @@ def get_average_page_size():
     print("Ran get_average_page_size")
     return results
 
+def get_failed_logs():
+    project_root = os.path.dirname(__file__)
+    load_dotenv(os.path.join(project_root, 'env/.env'))
+    db_user = os.getenv('SQL_user')
+    db_password = os.getenv('SQL_password')
+    db_connection = os.getenv('SQL_connection')
+
+    # Create database engine
+    engine = create_engine(f'cockroachdb://{db_user}:{db_password}{db_connection}')
+
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT id, timestamp, url, issue, reason FROM failed_logs LIMIT 1000")).fetchall()
+
+    failed_logs = []
+    for row in result:
+        failed_logs.append({
+            'id': row['id'],
+            'timestamp': row['timestamp'],
+            'url': row['url'],
+            'issue': row['issue'],
+            'reason': row['reason']
+        })
+
+    return failed_logs
+
 if __name__ == "__main__":
-    get_average_page_size()
+    get_failed_logs()
