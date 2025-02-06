@@ -38,7 +38,7 @@ class WebsiteSpider(CrawlSpider):
     def start_requests(self):
         for url in self.start_urls:
             print(f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}: Starting request for URL: {url}")
-            yield scrapy.Request(url=url, callback=self.parse_item, errback=self.errback_httpbin, dont_filter=True)
+            yield scrapy.Request(url=url, callback=self.parse_item, errback=self.errback_httpbin)
 
     def parse_item(self, response):
         # Define the data to be extracted from each page

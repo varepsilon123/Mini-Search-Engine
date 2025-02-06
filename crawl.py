@@ -94,8 +94,8 @@ def run_crawler(engine):
         # 'LOG_LEVEL': 'DEBUG',  # Set the global log level to DEBUG to capture all logs
         'TELNETCONSOLE_ENABLED': False,  # Disable the Telnet console extension
         'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',  # Update to the recommended value
-        'CONCURRENT_REQUESTS': 16,  # Reduce the number of concurrent requests (default: 16)
-        'DOWNLOAD_DELAY': 0,  # Increase the delay between requests (default: 0)
+        'CONCURRENT_REQUESTS': 16,  # Increase the number of concurrent requests
+        'DOWNLOAD_DELAY': 0,  # Reduce the delay between requests
         'CONCURRENT_REQUESTS_PER_DOMAIN': 8,  # Reduce the number of concurrent requests per domain (default: 8)
         'CONCURRENT_REQUESTS_PER_IP': 0,  # Reduce the number of concurrent requests per IP (default: 0)
         'AUTOTHROTTLE_ENABLED': True,  # Enable AutoThrottle extension
