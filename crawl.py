@@ -1,7 +1,6 @@
 from scrapy.crawler import CrawlerRunner
 from twisted.internet import reactor, defer
 from twisted.internet.task import react
-from scrapy.crawler import CrawlerRunner
 from mini_search_engine.spiders.website_spider import WebsiteSpider
 import os
 import re
