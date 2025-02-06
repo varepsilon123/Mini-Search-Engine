@@ -87,25 +87,25 @@ def run_crawler(engine):
         ]
 
     settings = {
-        'DEPTH_PRIORITY': 1,
-        'SCHEDULER_DISK_QUEUE': 'scrapy.squeues.PickleFifoDiskQueue',
-        'SCHEDULER_MEMORY_QUEUE': 'scrapy.squeues.FifoMemoryQueue',
-        'DUPEFILTER_CLASS': 'scrapy.dupefilters.RFPDupeFilter',  # Use the default duplicate filter
-        # 'LOG_LEVEL': 'DEBUG',  # Set the global log level to DEBUG to capture all logs
+        'DEPTH_PRIORITY': 0,
         'TELNETCONSOLE_ENABLED': False,  # Disable the Telnet console extension
-        'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',  # Update to the recommended value
-        'CONCURRENT_REQUESTS': 16,  # Increase the number of concurrent requests
-        'DOWNLOAD_DELAY': 0,  # Reduce the delay between requests
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 8,  # Reduce the number of concurrent requests per domain (default: 8)
-        'CONCURRENT_REQUESTS_PER_IP': 0,  # Reduce the number of concurrent requests per IP (default: 0)
+        'CONCURRENT_REQUESTS': 16,  # default: 16
+        'DOWNLOAD_DELAY': 1,  # default: 0
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 1,  # default: 8
+        'CONCURRENT_REQUESTS_PER_IP': 0,  # default: 0
         'AUTOTHROTTLE_ENABLED': True,  # Enable AutoThrottle extension
-        'AUTOTHROTTLE_START_DELAY': 5,  # Increase initial download delay (default: 5)
-        'AUTOTHROTTLE_MAX_DELAY': 60,  # Maximum download delay (default: 60)
-        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1,  # Reduce average number of requests Scrapy should be sending in parallel (default: 1.0)
-        'AUTOTHROTTLE_DEBUG': False,  # Disable showing throttling stats for every response received (default: False)
+        'AUTOTHROTTLE_START_DELAY': 5,  # default: 5
+        'AUTOTHROTTLE_MAX_DELAY': 60,  # default: 60
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1,  # default: 1.0
+        'AUTOTHROTTLE_DEBUG': False,  # default: False
+        'DEFAULT_REQUEST_HEADERS': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        },
+        'COOKIES_ENABLED': True,
     }
 
-    process = CrawlerProcess(settings=settings)
+    # process = CrawlerProcess(settings=settings)
+    process = CrawlerProcess()
 
     # Log here in the output file for the url
     print(f'In main, Crawling {len(urls)} URLs.')
