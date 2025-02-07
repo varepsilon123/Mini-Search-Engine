@@ -87,7 +87,7 @@ def run_crawler(engine):
         ]
 
     settings = {
-        'DEPTH_PRIORITY': 0,
+        'DEPTH_PRIORITY': 1,
         'SCHEDULER_DISK_QUEUE': 'scrapy.squeues.PickleFifoDiskQueue',
         'SCHEDULER_MEMORY_QUEUE': 'scrapy.squeues.FifoMemoryQueue',
         'TELNETCONSOLE_ENABLED': False,  # Disable the Telnet console extension
