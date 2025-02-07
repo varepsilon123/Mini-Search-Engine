@@ -128,7 +128,11 @@ Given our goal of achieving a lightweight, low-latency search engine with a 50ms
 
 ### Crawler
 
+One of my biggest struggles was learning how to crawl from scratch and tune the crawler for optimal performance on both my PC and a low-spec VPS. Without proper optimization, the load was too significant for such limited resources. I had to experiment with various settings and strategies to ensure efficient crawling without overwhelming the system.
+
 ### Tantivy Indexing
+
+One of my biggest struggles was achieving better relevancy in search results. In the early stages of development, I encountered an issue where a simple word appearing too many times in the content would significantly increase the score. This led to less relevant documents being ranked higher, which was not ideal for the search engine's performance.
 
 ## Ranking Optimization
 
