@@ -88,7 +88,10 @@ def run_crawler(engine):
 
     settings = {
         'DEPTH_PRIORITY': 0,
+        'SCHEDULER_DISK_QUEUE': 'scrapy.squeues.PickleFifoDiskQueue',
+        'SCHEDULER_MEMORY_QUEUE': 'scrapy.squeues.FifoMemoryQueue',
         'TELNETCONSOLE_ENABLED': False,  # Disable the Telnet console extension
+        'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',  # Update to the recommended value
         'CONCURRENT_REQUESTS': 16,  # default: 16
         'DOWNLOAD_DELAY': 1,  # default: 0
         'CONCURRENT_REQUESTS_PER_DOMAIN': 1,  # default: 8
@@ -104,8 +107,7 @@ def run_crawler(engine):
         'COOKIES_ENABLED': True,
     }
 
-    # process = CrawlerProcess(settings=settings)
-    process = CrawlerProcess()
+    process = CrawlerProcess(settings=settings)
 
     # Log here in the output file for the url
     print(f'In main, Crawling {len(urls)} URLs.')
