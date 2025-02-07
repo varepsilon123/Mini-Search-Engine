@@ -188,11 +188,11 @@ function fetchFailedLogs() {
       header.textContent = 'Failed Logs';
       resultsDiv.appendChild(header);
 
-      thead.innerHTML = `<tr><th>ID</th><th>Timestamp</th><th>URL</th><th>Issue</th><th>Reason</th></tr>`;
+      thead.innerHTML = `<tr><th>Issue</th><th>Number</th></tr>`;
 
       data.forEach((item) => {
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${item.id}</td><td>${item.timestamp}</td><td>${item.url}</td><td>${item.issue}</td><td>${item.reason}</td>`;
+        row.innerHTML = `<td>${item.issue}</td><td>${item.number}</td>`;
         tbody.appendChild(row);
       });
 

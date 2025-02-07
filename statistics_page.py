@@ -140,16 +140,13 @@ def get_failed_logs():
     engine = create_engine(f'cockroachdb://{db_user}:{db_password}{db_connection}')
 
     with engine.connect() as conn:
-        result = conn.execute(text("SELECT id, timestamp, url, issue, reason FROM failed_logs LIMIT 1000")).fetchall()
+        result = conn.execute(text("SELECT issue, COUNT(*) as `number` FROM failed_logs GROUP BY issue")).fetchall()
 
     failed_logs = []
     for row in result:
         failed_logs.append({
-            'id': row['id'],
-            'timestamp': row['timestamp'],
-            'url': row['url'],
             'issue': row['issue'],
-            'reason': row['reason']
+            'number': row['number']
         })
 
     return failed_logs
