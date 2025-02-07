@@ -145,8 +145,8 @@ def get_failed_logs():
     failed_logs = []
     for row in result:
         failed_logs.append({
-            'issue': row['issue'],
-            'number': row['number']
+            'issue': row[0],
+            'number': row[1]
         })
 
     return failed_logs
