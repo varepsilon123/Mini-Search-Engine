@@ -142,7 +142,7 @@ def get_failed_logs():
     with engine.connect() as conn:
         result = conn.execute(text("SELECT issue, COUNT(*) as `number` FROM failed_logs GROUP BY issue")).fetchall()
 
-    failed_logs = []
+    failed_logs = {}
     for row in result:
         failed_logs.append({
             'issue': row[0],
