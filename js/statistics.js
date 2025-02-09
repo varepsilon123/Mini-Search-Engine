@@ -47,7 +47,7 @@ function fetchIndexedPages() {
       const tbody = document.createElement('tbody');
 
       const header = document.createElement('h2');
-      header.textContent = 'Indexed Pages';
+      header.textContent = 'Indexed Pages (Index updates every 2 hours)';
       resultsDiv.appendChild(header);
 
       thead.innerHTML = `<tr><th style="width: 50%;">URL (Alphabetical Order)</th><th style="width: 50%;">Indexed Pages</th></tr>`;
@@ -185,7 +185,7 @@ function fetchFailedLogs() {
       const tbody = document.createElement('tbody');
 
       const header = document.createElement('h2');
-      header.textContent = 'Failed Logs';
+      header.textContent = 'Failed Logs (From Database)';
       resultsDiv.appendChild(header);
 
       thead.innerHTML = `<tr><th>Issue</th><th>Number</th></tr>`;
