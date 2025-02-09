@@ -43,7 +43,8 @@ class Indexer:
         # Create an index
         index_path = os.path.join(self.project_root, 'tantivy_index')
         if os.path.exists(index_path):
-            shutil.rmtree(index_path)
+            old_index_path = os.path.join(self.project_root, f"old_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_tantivy_index")
+            os.rename(index_path, old_index_path)
         os.makedirs(index_path)
         index = tantivy.Index(schema, path=index_path)
 
@@ -70,4 +71,7 @@ class Indexer:
 
         # Commit the changes to the index
         index_writer.commit()
+        # Remove the old index folder
+        if os.path.exists(old_index_path):
+            shutil.rmtree(old_index_path)
         self.log_writer("Indexing process completed.")
