@@ -17,7 +17,7 @@ class Indexer:
 
     def fetch_batch(self, engine, offset, limit):
         with engine.connect() as conn:
-            result = conn.execute(text(f"SELECT url, title, content FROM crawled_data LIMIT {limit} OFFSET {offset}"))
+            result = conn.execute(text(f"SELECT url, title, content, created_at FROM crawled_data LIMIT {limit} OFFSET {offset}"))
             return result.fetchall()
 
     def process_batch(self, index_writer, batch):
@@ -25,10 +25,12 @@ class Indexer:
             url = row[0] if row[0] is not None else ""
             title = row[1] if row[1] is not None else ""
             content = row[2] if row[2] is not None else ""
+            created_at = row[3] if row[3] is not None else ""
             index_writer.add_document(tantivy.Document(
                 url=url,
                 title=title,
-                content=content
+                content=content,
+                created_at=created_at
             ))
 
     def run_index(self, engine):
@@ -38,6 +40,7 @@ class Indexer:
         schema_builder.add_text_field("title", stored=True)
         schema_builder.add_text_field("content", stored=True)
         schema_builder.add_text_field("url", stored=True)
+        schema_builder.add_date_field("created_at", stored=True)
         schema = schema_builder.build()
 
         # Create an index
