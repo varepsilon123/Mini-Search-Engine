@@ -63,11 +63,11 @@ class Indexer:
             futures = []
             offset = 0
             batch = self.fetch_batch(engine, offset, batch_size)
+            self.log_writer(f"Batch number: {batch_num}")
+            batch_num += 1
+            futures.append(executor.submit(self.process_batch, index_writer, batch))
+            offset += batch_size
             while len(batch) == batch_size:
-                self.log_writer(f"Batch number: {batch_num}")
-                batch_num += 1
-                futures.append(executor.submit(self.process_batch, index_writer, batch))
-                offset += batch_size
                 batch = self.fetch_batch(engine, offset, batch_size)
 
             # Wait for all futures to complete
