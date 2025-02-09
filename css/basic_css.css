@@ -49,7 +49,7 @@ tr:nth-child(even) td {
 
 input {
   background-color: rgb(211, 211, 211);
-  width: 100%; /* Make the input box longer */
+  width: 90%; /* Make the input box longer */
   max-width: 600px; /* Set a maximum width */
 }
 
@@ -127,4 +127,10 @@ button {
 
 .pre-search-margin {
   margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    transform: scale(1) !important;
+  }
 }
