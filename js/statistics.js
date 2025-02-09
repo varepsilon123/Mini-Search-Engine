@@ -39,7 +39,7 @@ function fetchIndexedPages() {
       // Add elapsed time display
       const elapsedTimeDiv = document.createElement('div');
       elapsedTimeDiv.style.margin = '10px 0';
-      elapsedTimeDiv.textContent = `Elapsed time: ${elapsed_time}ms`;
+      elapsedTimeDiv.textContent = `Elapsed time (API call time with index search time): ${elapsed_time}ms`;
       resultsDiv.appendChild(elapsedTimeDiv);
 
       const table = document.createElement('table');
@@ -85,7 +85,7 @@ function fetchTotalCrawlTime() {
       // Add elapsed time display
       const elapsedTimeDiv = document.createElement('div');
       elapsedTimeDiv.style.margin = '10px 0';
-      elapsedTimeDiv.textContent = `Elapsed time: ${elapsed_time}ms`;
+      elapsedTimeDiv.textContent = `Elapsed time (API call time with index search time): ${elapsed_time}ms`;
       resultsDiv.appendChild(elapsedTimeDiv);
 
       const table = document.createElement('table');
@@ -131,7 +131,7 @@ function fetchAveragePageSize() {
       // Add elapsed time display
       const elapsedTimeDiv = document.createElement('div');
       elapsedTimeDiv.style.margin = '10px 0';
-      elapsedTimeDiv.textContent = `Elapsed time: ${elapsed_time}ms`;
+      elapsedTimeDiv.textContent = `Elapsed time (API call time with index search time): ${elapsed_time}ms`;
       resultsDiv.appendChild(elapsedTimeDiv);
 
       const table = document.createElement('table');
@@ -177,7 +177,7 @@ function fetchFailedLogs() {
       // Add elapsed time display
       const elapsedTimeDiv = document.createElement('div');
       elapsedTimeDiv.style.margin = '10px 0';
-      elapsedTimeDiv.textContent = `Elapsed time: ${elapsed_time}ms`;
+      elapsedTimeDiv.textContent = `Elapsed time (API call time with DB query time): ${elapsed_time}ms`;
       resultsDiv.appendChild(elapsedTimeDiv);
 
       const table = document.createElement('table');
