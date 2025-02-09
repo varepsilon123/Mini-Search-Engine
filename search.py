@@ -53,7 +53,7 @@ class Searcher:
         
         top_docs = self.searcher.search(complex_query, top_k).hits
         end_time = time.time()
-        elapsed_time = end_time - start_time
+        elapsed_time = (end_time - start_time) * 1000  # convert to milliseconds
 
         results = []
         if top_docs:
@@ -69,7 +69,7 @@ class Searcher:
                     "title": doc.get_first("title"),
                     "snippet": snippet.to_html()
                 })
-            print(f"Found {len(results)} results in {elapsed_time:.2f} seconds.")
+            print(f"Found {len(results)} results in {elapsed_time:.2f} milliseconds.")
         else:
             print("No results found.")
         return {

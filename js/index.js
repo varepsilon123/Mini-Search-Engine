@@ -28,7 +28,7 @@ form.addEventListener('submit', (event) => {
 
         resultDiv.innerHTML = `
           <div class="elaspse-time">
-            <p>Elapsed Time: ${data.elapsed_time} seconds</p>
+            <p>Elapsed Time: ${data.elapsed_time} ms</p>
           </div>
         ` + data.results.map(result => `
           <div class="result-item">
