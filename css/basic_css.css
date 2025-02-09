@@ -48,7 +48,7 @@ tr:nth-child(even) td {
 }
 
 input {
-  background-color: rgb(211, 211, 211);
+  background-color: rgb(238, 238, 238);
   width: 90%; /* Make the input box longer */
   max-width: 600px; /* Set a maximum width */
 }
