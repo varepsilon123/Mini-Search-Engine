@@ -188,7 +188,7 @@ function fetchFailedLogs() {
       header.textContent = 'Failed Logs (From Database)';
       resultsDiv.appendChild(header);
 
-      thead.innerHTML = `<tr><th>Issue</th><th>Number</th></tr>`;
+      thead.innerHTML = `<tr><th style="width: 50%;">Issue</th><th style="width: 50%;">Number</th></tr>`;
 
       data.forEach((item) => {
         const row = document.createElement('tr');
