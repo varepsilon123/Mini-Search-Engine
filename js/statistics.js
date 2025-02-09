@@ -49,6 +49,7 @@ function fetchIndexedPages() {
       const header = document.createElement('h2');
       header.textContent = 'Indexed Pages (Index updates every 2 hours)';
       resultsDiv.appendChild(header);
+      let totalCount = 0;
 
       thead.innerHTML = `<tr><th style="width: 50%;">URL (Alphabetical Order)</th><th style="width: 50%;">Indexed Pages</th></tr>`;
 
@@ -56,7 +57,12 @@ function fetchIndexedPages() {
         const row = document.createElement('tr');
         row.innerHTML = `<td>${item.url}</td><td>${item.page_count}</td>`;
         tbody.appendChild(row);
+        totalCount += item.page_count;
       });
+
+
+      header.textContent = 'Indexed Pages (Index updates every 2 hours): ' + totalCount;
+      resultsDiv.appendChild(header);
 
       table.appendChild(thead);
       table.appendChild(tbody);
